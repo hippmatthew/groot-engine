@@ -21,6 +21,8 @@ Context::Context() {
 }
 
 Context::~Context() {
+  Materials::destroy();
+
   glfwDestroyWindow(gl_window);
   glfwTerminate();
 

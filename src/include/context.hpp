@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/include/materials.hpp"
 #include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_beta.h>
 
@@ -25,6 +26,7 @@ struct QueueFamily {
 
 class Context {
   friend class Allocator;
+  friend class Material;
 
   using QueueFamilies = std::map<QueueFamilyType, QueueFamily>;
 
@@ -44,10 +46,13 @@ class Context {
 
     template <typename Func>
     void run(Func&& code) {
+      ge_materials.load();
+
       while (!shouldClose()) {
         pollEvents();
         code();
       }
+
       vk_device.waitIdle();
     }
 
