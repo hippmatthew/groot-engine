@@ -67,4 +67,30 @@ ObjParser::Output ObjParser::parse(std::string path) {
   return { std::move(vertices), std::move(indices) };
 }
 
+SPVParser::Output SPVParser::parse(std::string path) {
+  std::ifstream file(path, std::ios::binary | std::ios::ate);
+  if (!file) throw std::runtime_error("groot-engine: failed to open shader at " + path);
+
+  std::vector<char> buffer;
+  unsigned int size = file.tellg();
+
+  if (size < 4)
+    throw std::runtime_error("groot-engine: file too small - " + path);
+
+  if (size % 4 != 0)
+    throw std::runtime_error("groot-engine: corrupted shader - " + path);
+
+  buffer.resize(4);
+  file.seekg(0);
+  file.read(buffer.data(), 4);
+
+  if (*reinterpret_cast<unsigned int *>(buffer.data()) != 0x07230203)
+    throw std::runtime_error("groot-engine: incorrect file format - " + path);
+
+  buffer.resize(size);
+  file.read(buffer.data() + 4, size - 4);
+
+  return buffer;
+}
+
 } // namespace ge

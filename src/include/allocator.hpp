@@ -21,6 +21,12 @@ class Allocator {
     std::vector<vk::raii::ImageView>
   >;
 
+  using DepthResource = std::tuple<
+    vk::raii::DeviceMemory,
+    vk::raii::Image,
+    vk::raii::ImageView
+  >;
+
   using CommandPool = std::pair<
     vk::raii::CommandPool,
     vk::raii::CommandBuffers
@@ -41,8 +47,11 @@ class Allocator {
     Allocator& operator = (Allocator&) = delete;
     Allocator& operator = (Allocator&&) = delete;
 
+    static void destroy();
+
     static BufferPool bufferPool(const std::vector<vk::BufferCreateInfo>&, vk::MemoryPropertyFlags);
     static ImagePool imagePool(const std::vector<vk::ImageCreateInfo>&);
+    static DepthResource depthResource();
     static CommandPool commandPool(QueueFamilyType, vk::CommandPoolCreateFlags, unsigned int);
     static vk::raii::CommandBuffers transferBuffers(unsigned int);
     static DescriptorPool descriptorPool(
@@ -55,6 +64,7 @@ class Allocator {
     static vk::raii::DeviceMemory allocate(unsigned int&, unsigned int&, vk::MemoryPropertyFlags);
     static vk::raii::CommandPool createCommandPool(unsigned int, vk::CommandPoolCreateFlags);
     static vk::raii::CommandBuffers createCommandBuffers(vk::raii::CommandPool&, unsigned int);
+    static vk::ImageViewCreateInfo viewCreateInfo(const vk::Image&);
 
   private:
     static vk::raii::CommandPool transferPool;

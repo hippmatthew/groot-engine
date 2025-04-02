@@ -1,6 +1,8 @@
 #pragma once
 
-#include "src/include/materials.hpp"
+#include "src/include/renderer.hpp"
+#include "vulkan/vulkan_core.h"
+
 #include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_beta.h>
 
@@ -27,6 +29,8 @@ struct QueueFamily {
 class Context {
   friend class Allocator;
   friend class Material;
+  friend class Objects;
+  friend class Renderer;
 
   using QueueFamilies = std::map<QueueFamilyType, QueueFamily>;
 
@@ -46,17 +50,28 @@ class Context {
 
     template <typename Func>
     void run(Func&& code) {
-      ge_materials.load();
+      load();
 
       while (!shouldClose()) {
         pollEvents();
         code();
+        renderer.render();
       }
 
       vk_device.waitIdle();
     }
 
     void close();
+
+    #ifdef ge_tests
+
+      const GLFWwindow * get_window() const { return gl_window; }
+      const vk::raii::Instance& get_instance() const { return vk_instance; }
+      const vk::raii::PhysicalDevice& get_gpu() const { return vk_physicalDevice; }
+      const vk::raii::Device& get_device() const { return vk_device; }
+      const QueueFamilies& get_queues() const { return qfMap; }
+
+    #endif // ge_tests
 
   private:
     static GLFWwindow * window();
@@ -68,12 +83,13 @@ class Context {
 
     QueueFamilies getQueueFamilies(const vk::raii::PhysicalDevice&) const;
     unsigned int typeIndex(vk::PhysicalDeviceType) const;
+    void load() const;
 
     void createWindow();
     bool createInstance();
     void createSurface();
-    void chooseGPU();
-    void createDevice(bool);
+    void chooseGPU(const std::vector<const char *>&);
+    void createDevice(const bool&, std::vector<const char *>&);
     bool shouldClose();
     void pollEvents();
 
@@ -88,11 +104,9 @@ class Context {
     vk::raii::Device vk_device = nullptr;
     QueueFamilies qfMap;
 
+    Renderer renderer;
+
     bool closeRequested = false;
-    std::vector<const char *> deviceExtensions = {
-      VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
 };
 
 } // namespace hlvl

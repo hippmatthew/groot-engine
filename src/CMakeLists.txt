@@ -7,7 +7,10 @@ set(GE_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/allocator.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/context.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/materials.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/objects.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/parsers.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/settings.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/vertex.hpp
 )
@@ -16,7 +19,10 @@ set(GE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/linalg.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/materials.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/objects.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/parsers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/renderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/settings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vertex.cpp
 )
@@ -42,6 +48,7 @@ target_compile_definitions(geng PRIVATE
   "VULKAN_HPP_NO_CONSTRUCTORS"
   "ge_engine_version=ge_make_version(${GE_VERSION_MAJOR}, ${GE_VERSION_MINOR}, ${GE_VERSION_PATCH})"
   "ge_vulkan_version=VK_MAKE_API_VERSION(1, 3, 296, 0)"
+  "ge_timeout=1000000000ul"
 )
 
 target_link_libraries(geng PRIVATE

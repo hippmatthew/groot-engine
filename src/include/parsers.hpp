@@ -24,4 +24,21 @@ class ObjParser {
     static Output parse(std::string);
 };
 
+class SPVParser {
+
+  using Output = std::vector<char>;
+
+  public:
+    SPVParser() = delete;
+    SPVParser(SPVParser&) = delete;
+    SPVParser(SPVParser&&) = delete;
+
+    ~SPVParser() = default;
+
+    SPVParser& operator = (SPVParser&) = delete;
+    SPVParser& operator = (SPVParser&&) = delete;
+
+    static Output parse(std::string);
+};
+
 } // namespace ge

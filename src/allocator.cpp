@@ -1,10 +1,15 @@
 #include "src/include/allocator.hpp"
 #include "src/include/context.hpp"
 #include "src/include/settings.hpp"
+#include "vulkan/vulkan_enums.hpp"
 
 namespace ge {
 
 vk::raii::CommandPool Allocator::transferPool = nullptr;
+
+void Allocator::destroy() {
+  transferPool.clear();
+}
 
 Allocator::BufferPool Allocator::bufferPool(
   const std::vector<vk::BufferCreateInfo>& infos, vk::MemoryPropertyFlags flags
@@ -65,23 +70,61 @@ Allocator::ImagePool Allocator::imagePool(const std::vector<vk::ImageCreateInfo>
       .image      = image,
       .viewType   = vk::ImageViewType::e2D,
       .format     = vk::Format::eR8G8B8A8Srgb,
-      .components = {
-        .r = vk::ComponentSwizzle::eIdentity,
-        .g = vk::ComponentSwizzle::eIdentity,
-        .b = vk::ComponentSwizzle::eIdentity,
-        .a = vk::ComponentSwizzle::eIdentity
-      },
       .subresourceRange = {
         .aspectMask     = vk::ImageAspectFlagBits::eColor,
-        .baseMipLevel   = 0,
         .levelCount     = 1,
-        .baseArrayLayer = 0,
         .layerCount     = 1
       }
     }));
   }
 
   return { std::move(memory), std::move(images), std::move(views) };
+}
+
+Allocator::DepthResource Allocator::depthResource() {
+  vk::FormatProperties properties = Context::physicalDevice().getFormatProperties(ge_settings.depth_format);
+  if (!(properties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment))
+    throw std::runtime_error("groot-engine: invalid depth format");
+
+  vk::raii::DeviceMemory memory = nullptr;
+  vk::raii::Image image = nullptr;
+  vk::raii::ImageView view = nullptr;
+
+  image = Context::device().createImage(vk::ImageCreateInfo{
+    .imageType  = vk::ImageType::e2D,
+    .format     = ge_settings.depth_format,
+    .extent     = {
+      .width  = ge_settings.extent.width,
+      .height = ge_settings.extent.height,
+      .depth  = 1
+    },
+    .mipLevels    = 1,
+    .arrayLayers  = 1,
+    .samples      = vk::SampleCountFlagBits::e1,
+    .tiling       = vk::ImageTiling::eOptimal,
+    .usage        = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+    .sharingMode  = vk::SharingMode::eExclusive
+  });
+
+  vk::MemoryRequirements requirements = image.getMemoryRequirements();
+  unsigned int allocationSize = requirements.size;
+  unsigned int filter = requirements.memoryTypeBits;
+
+  memory = allocate(allocationSize, filter, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  image.bindMemory(memory, 0);
+
+  view = Context::device().createImageView(vk::ImageViewCreateInfo{
+    .image            = image,
+    .viewType         = vk::ImageViewType::e2D,
+    .format           = ge_settings.depth_format,
+    .subresourceRange = {
+      .aspectMask = vk::ImageAspectFlagBits::eDepth,
+      .levelCount = 1,
+      .layerCount = 1
+    }
+  });
+
+  return { std::move(memory), std::move(image), std::move(view) };
 }
 
 Allocator::CommandPool Allocator::commandPool(QueueFamilyType type, vk::CommandPoolCreateFlags flags, unsigned int count) {

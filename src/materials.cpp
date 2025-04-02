@@ -1,14 +1,15 @@
 #include "src/include/context.hpp"
 #include "src/include/materials.hpp"
+#include "src/include/parsers.hpp"
 #include "src/include/settings.hpp"
 #include "src/include/vertex.hpp"
 
-#include <fstream>
-#include <stdexcept>
-
 namespace ge {
 
+std::mutex Materials::mutex;
 Materials * Materials::p_materials = nullptr;
+
+Material::MaterialBuilder::MaterialBuilder(std::string t) : tag(t) {}
 
 Material::MaterialBuilder& Material::MaterialBuilder::add_shader(ShaderType type, std::string path) {
   shaders[static_cast<vk::ShaderStageFlagBits>(type)] = path;
@@ -20,30 +21,8 @@ Material::Material(const MaterialBuilder& builder) {
   createGPipeline(builder);
 }
 
-std::vector<char> Material::readShader(const std::string& path) const {
-  std::ifstream file(path, std::ios::binary | std::ios::ate);
-  if (!file) throw std::runtime_error("groot-engine: failed to open shader at " + path);
-
-  std::vector<char> buffer;
-  unsigned int size = file.tellg();
-
-  if (size < 4)
-    throw std::runtime_error("groot-engine: file too small - " + path);
-
-  if (size % 4 != 0)
-    throw std::runtime_error("groot-engine: corrupted shader - " + path);
-
-  buffer.resize(4);
-  file.seekg(0);
-  file.read(buffer.data(), 4);
-
-  if (*reinterpret_cast<unsigned int *>(buffer.data()) != 0x07230203)
-    throw std::runtime_error("groot-engine: incorrect file format - " + path);
-
-  buffer.resize(size);
-  file.read(buffer.data() + 4, size - 4);
-
-  return buffer;
+Material::MaterialBuilder Material::builder(std::string tag) {
+  return MaterialBuilder(tag);
 }
 
 Material::ShaderStages Material::getShaderStages(const std::map<vk::ShaderStageFlagBits, std::string>& shaders) const {
@@ -51,7 +30,7 @@ Material::ShaderStages Material::getShaderStages(const std::map<vk::ShaderStageF
   std::vector<vk::PipelineShaderStageCreateInfo> infos;
 
   for (auto [stage, path] : shaders) {
-    std::vector<char> code = readShader(path);
+    std::vector<char> code = SPVParser::parse(path);
 
     modules.emplace_back(Context::device().createShaderModule(vk::ShaderModuleCreateInfo{
       .codeSize = static_cast<unsigned int>(code.size()),
@@ -154,8 +133,9 @@ void Material::createGPipeline(const MaterialBuilder& builder) {
   };
 
   vk::PipelineRenderingCreateInfo ci_rendering{
-    .colorAttachmentCount = 1,
-    .pColorAttachmentFormats = &ge_settings.format
+    .colorAttachmentCount     = 1,
+    .pColorAttachmentFormats  = &ge_settings.format,
+    .depthAttachmentFormat    = ge_settings.depth_format
   };
 
   gPipeline = Context::device().createGraphicsPipeline(nullptr, vk::GraphicsPipelineCreateInfo{
@@ -188,13 +168,14 @@ void Materials::destroy() {
   p_materials = nullptr;
 }
 
-void Materials::add(Material::MaterialBuilder&& builder) {
-  builders.emplace_back(std::move(builder));
+void Materials::add(Material::MaterialBuilder builder) {
+  builders.emplace_back(builder);
+  materialMap.emplace(std::make_pair(builder.tag, Material()));
 }
 
 void Materials::load() {
   for (const auto& builder : builders)
-    materialMap.emplace(std::make_pair(builder.tag, Material(builder)));
+    materialMap[builder.tag] = std::move(Material(builder));
 }
 
 } // namespace ge

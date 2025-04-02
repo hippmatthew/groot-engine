@@ -1,6 +1,10 @@
+#include "src/include/allocator.hpp"
 #include "src/include/context.hpp"
+#include "src/include/materials.hpp"
+#include "src/include/objects.hpp"
 #include "src/include/settings.hpp"
 
+#include <future>
 #include <stdexcept>
 
 namespace ge {
@@ -9,19 +13,28 @@ Context * Context::p_context = nullptr;
 
 Context::Context() {
   if (p_context != nullptr)
-    throw std::runtime_error("hlvl: tried to initialize more than one context");
+    throw std::runtime_error("groot-engine: tried to initialize more than one context");
 
   p_context = this;
+
+  std::vector<const char *> deviceExtensions = {
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
 
   createWindow();
   bool portability = createInstance();
   createSurface();
-  chooseGPU();
-  createDevice(portability);
+  chooseGPU(deviceExtensions);
+  createDevice(portability, deviceExtensions);
+
+  renderer.init();
 }
 
 Context::~Context() {
+  Objects::destroy();
   Materials::destroy();
+  Allocator::destroy();
 
   glfwDestroyWindow(gl_window);
   glfwTerminate();
@@ -147,6 +160,14 @@ unsigned int Context::typeIndex(vk::PhysicalDeviceType type) const {
   }
 }
 
+void Context::load() const {
+  std::future<void> materialThread = std::async(std::launch::async, [](){ ge_materials.load(); });
+  std::future<void> objectThread = std::async(std::launch::async, [](){ ge_objects.load(); });
+
+  materialThread.get();
+  objectThread.get();
+}
+
 void Context::createWindow() {
   if (glfwInit() != GLFW_TRUE)
     throw std::runtime_error("hlvl: failed to initialize glfw");
@@ -220,7 +241,7 @@ void Context::createSurface() {
     throw std::runtime_error("hlvl: failed to create window surface");
 }
 
-void Context::chooseGPU() {
+void Context::chooseGPU(const std::vector<const char *>& deviceExtensions) {
   const bool comparisonMap[3][3] = {
     { false, false, false },
     { true,  false, false },
@@ -261,7 +282,7 @@ void Context::chooseGPU() {
     if (!supported) continue;
 
     vk::PhysicalDeviceFeatures features = gpu.getFeatures();
-    if (!features.samplerAnisotropy) continue;
+    if (!(features.samplerAnisotropy && features.multiDrawIndirect)) continue;
 
     if (prevType == vk::PhysicalDeviceType::eOther
           || comparisonMap[typeIndex(prevType)][typeIndex(properties.deviceType)]
@@ -276,7 +297,7 @@ void Context::chooseGPU() {
     throw std::runtime_error("hlvl: failed to find suitable gpu");
 }
 
-void Context::createDevice(bool portability) {
+void Context::createDevice(const bool& portability, std::vector<const char *>& deviceExtensions) {
   std::vector<vk::DeviceQueueCreateInfo> ci_queues;
   float priority = 1.0f;
   for (auto& [_, family] : qfMap) {
@@ -297,7 +318,8 @@ void Context::createDevice(bool portability) {
   }
 
   vk::PhysicalDeviceFeatures features{
-    .samplerAnisotropy = true
+    .multiDrawIndirect  = true,
+    .samplerAnisotropy  = true
   };
 
   vk::PhysicalDeviceDynamicRenderingFeaturesKHR dynRender{
