@@ -57,10 +57,10 @@ TEST_CASE( "vec", "[unit][linalg]" ) {
     ge::vec<2> u = ge::vec<2>(num1, num2) / num3;
     ge::vec<2> v(num1 * inv, num2 * inv);
 
-    float err = abs(abs(u[0]) - abs(v[0])) / abs(v[0]);
+    float err = std::abs(std::abs(u[0]) - std::abs(v[0])) / std::abs(v[0]);
     CHECK( err < 0.01 );
 
-    err = abs(abs(u[1]) - abs(v[1])) / abs(v[1]);
+    err = std::abs(std::abs(u[1]) - std::abs(v[1])) / std::abs(v[1]);
     CHECK( err < 0.01 );
   }
 
@@ -71,10 +71,10 @@ TEST_CASE( "vec", "[unit][linalg]" ) {
     u /= num3;
     ge::vec<2> v(num1 * inv, num2 * inv);
 
-    float err = abs(abs(u[0]) - abs(v[0])) / abs(v[0]);
+    float err = std::abs(std::abs(u[0]) - std::abs(v[0])) / std::abs(v[0]);
     CHECK( err < 0.01 );
 
-    err = abs(abs(u[1]) - abs(v[1])) / abs(v[1]);
+    err = std::abs(std::abs(u[1]) - std::abs(v[1])) / std::abs(v[1]);
     CHECK( err < 0.01 );
   }
 
@@ -82,7 +82,7 @@ TEST_CASE( "vec", "[unit][linalg]" ) {
     float res = ge::vec<2>(num1, num2) * ge::vec<2>(num3, num4);
     float expected = num1 * num3 + num2 * num4;
 
-    float float_error = abs(res - expected) / abs(expected);
+    float float_error = std::abs(res - expected) / std::abs(expected);
 
     CHECK( float_error < 0.01);
   }
@@ -227,7 +227,7 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
 
     for (unsigned int i = 0; i < 2; ++i) {
       for (unsigned int j = 0; j < 2; ++j) {
-        float err = abs(abs(m[i][j]) - abs(r[i][j])) / abs(r[i][j]);
+        float err = std::abs(std::abs(m[i][j]) - std::abs(r[i][j])) / std::abs(r[i][j]);
         CHECK( err < 0.01 );
       }
     }
@@ -253,7 +253,7 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
 
     for (unsigned int i = 0; i < 2; ++i) {
       for (unsigned int j = 0; j < 2; ++j) {
-        float err = abs(abs(p[i][j]) - abs(r[i][j])) / abs(r[i][j]);
+        float err = std::abs(std::abs(p[i][j]) - std::abs(r[i][j])) / std::abs(r[i][j]);
         CHECK( err < 0.01 );
       }
     }
@@ -271,7 +271,7 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
     ge::vec<2> r(num1 * num2 + num2 * num3, num3 * num2 + num1 * num3);
 
     for (unsigned int i = 0; i < 2; ++i) {
-      float err = abs(abs(w[i]) - abs(r[i])) / abs(r[i]);
+      float err = std::abs(std::abs(w[i]) - std::abs(r[i])) / std::abs(r[i]);
       CHECK( err < 0.01 );
     }
   }
@@ -321,7 +321,7 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
 
     for (unsigned int i = 0; i < 2; ++i) {
       for (unsigned int j = 0; j < 2; ++j) {
-        float err = abs(abs(r[i][j]) - abs(q[i][j])) / abs(q[i][j]);
+        float err = std::abs(std::abs(r[i][j]) - std::abs(q[i][j])) / std::abs(q[i][j]);
         CHECK( err < 0.01 );
       }
     }
@@ -374,8 +374,8 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
     x = r * x;
     y = r * y;
 
-    float errX = abs(x[1] - 1);
-    float errY = abs(abs(y[0]) - 1);
+    float errX = std::abs(std::abs(x[1]) - 1);
+    float errY = std::abs(std::abs(y[0]) - 1);
 
     CHECK( errX < 0.01 );
     CHECK( errY < 0.01 );

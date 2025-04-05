@@ -1,7 +1,6 @@
 #include "src/include/allocator.hpp"
 #include "src/include/context.hpp"
 #include "src/include/settings.hpp"
-#include "vulkan/vulkan_enums.hpp"
 
 namespace ge {
 

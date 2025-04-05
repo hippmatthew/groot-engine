@@ -27,7 +27,12 @@ TEST_CASE( "objects", "[unit][objects]" ) {
     REQUIRE( objects.contains("test") );
     CHECK( objects["test"].vertices.size() == 4 );
     CHECK( objects["test"].indices.size() == 6 );
-    CHECK( objects["test"].bufIndices == std::tuple<unsigned int, unsigned int, unsigned int>{0, 0, 0} );
+
+    auto [vIdx, iIdx, inIdx] = objects["test"].bufIndices;
+    CHECK( vIdx == 0 );
+    CHECK( iIdx == 0 );
+    CHECK( inIdx == 0 );
+
     CHECK( objects["test"].commands.size() == 1 );
   }
 }

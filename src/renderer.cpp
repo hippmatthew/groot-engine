@@ -4,7 +4,6 @@
 #include "src/include/objects.hpp"
 #include "src/include/renderer.hpp"
 #include "src/include/settings.hpp"
-#include "vulkan/vulkan_structs.hpp"
 
 namespace ge {
 

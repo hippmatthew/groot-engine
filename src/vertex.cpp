@@ -1,5 +1,7 @@
 #include "src/include/vertex.hpp"
 
+#include <__stddef_offsetof.h>
+
 namespace ge {
 
 Vertex::Vertex(vec<3> v, vec<2> u, vec<3> n) : position(v), uv(u), normal(n) {}
@@ -18,19 +20,19 @@ std::array<vk::VertexInputAttributeDescription, 3> Vertex::attributes() {
       .location = 0,
       .binding  = 0,
       .format   = vk::Format::eR32G32B32Sfloat,
-      .offset   = __offsetof(Vertex, position)
+      .offset   = offsetof(Vertex, position)
     },
     vk::VertexInputAttributeDescription{
       .location = 1,
       .binding  = 0,
       .format   = vk::Format::eR32G32Sfloat,
-      .offset   = __offsetof(Vertex, uv)
+      .offset   = offsetof(Vertex, uv)
     },
     vk::VertexInputAttributeDescription{
       .location = 2,
       .binding  = 0,
       .format   = vk::Format::eR32G32B32Sfloat,
-      .offset   = __offsetof(Vertex, normal)
+      .offset   = offsetof(Vertex, normal)
     }
   };
 }

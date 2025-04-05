@@ -2,7 +2,7 @@
 #include "src/include/materials.hpp"
 #include "src/include/objects.hpp"
 #include "src/include/parsers.hpp"
-#include "vulkan/vulkan_enums.hpp"
+
 #include <mutex>
 
 namespace ge {
