@@ -18,7 +18,7 @@ TEST_CASE( "engine" ) {
   REQUIRE( !context.get_queues().empty() );
   REQUIRE( context.get_queues().contains(ge::QueueFamilyType::Main) );
 
-  ge_materials.add(ge::Material::builder("test")
+  ge_materials.add("test", ge_material_builder
     .add_shader(ge::ShaderType::FragmentShader, "shaders/shader.frag.spv")
     .add_shader(ge::ShaderType::VertexShader, "shaders/shader.vert.spv")
   );
@@ -31,10 +31,8 @@ TEST_CASE( "engine" ) {
   context.run([&firstFrame](){
     if (!firstFrame) return;
 
-    auto& material = ge_materials.get_map().at("test");
-
-    REQUIRE( *material.get_layout() != nullptr );
-    REQUIRE( *material.get_gPipeline() != nullptr );
+    REQUIRE( *ge_materials.get_layout() != nullptr );
+    REQUIRE( ge_materials.get_pipelines().size() == 1);
     REQUIRE( *ge_objects.get_vMem() != nullptr );
     REQUIRE( ge_objects.get_vBufs().size() == 1 );
     REQUIRE( *ge_objects.get_iMem() != nullptr );

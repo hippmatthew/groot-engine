@@ -20,7 +20,7 @@ TEST_CASE( "objects", "[unit][objects]" ) {
   }
 
   SECTION( "add_object" ) {
-    ge_materials.add(ge::Material::builder("test"));
+    ge_materials.add("test", ge_material_builder);
     ge_objects.add("test", "../tests/dat/quad.obj");
 
     auto objects = ge_objects.get_objects();

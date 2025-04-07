@@ -49,6 +49,7 @@ target_compile_definitions(geng PRIVATE
   "ge_engine_version=ge_make_version(${GE_VERSION_MAJOR}, ${GE_VERSION_MINOR}, ${GE_VERSION_PATCH})"
   "ge_vulkan_version=VK_MAKE_API_VERSION(1, 3, 296, 0)"
   "ge_timeout=1000000000ul"
+  "ge_max_descriptors=1024"
 )
 
 target_link_libraries(geng PRIVATE

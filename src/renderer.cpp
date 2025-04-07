@@ -127,8 +127,7 @@ void Renderer::render() {
     throw std::runtime_error("groot-engine: hung waiting for flight fence");
 
   auto [res, imgIndex] = swapchain.acquireNextImage(ge_timeout, imageSemaphores[frameIndex], nullptr);
-  if (res != vk::Result::eSuccess)
-    throw std::runtime_error("groot-engine: failed to get next swapchain image");
+  if (res != vk::Result::eSuccess) throw std::runtime_error("groot-engine: failed to get next swapchain image");
 
   Context::device().resetFences(*flightFences[frameIndex]);
 
@@ -259,8 +258,8 @@ void Renderer::preDraw(const unsigned int& imgIndex) {
 }
 
 void Renderer::draw() {
-  for (const auto& [tag, material] : ge_materials.materialMap) {
-    renderCmds[frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, material.gPipeline);
+  for (const auto& [tag, material] : ge_materials.materials) {
+    renderCmds[frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, ge_materials.pipelines[material.pipelineIndex]);
 
     const auto& obj = ge_objects.objectMap[tag];
     const auto& [vertexIndex, indexIndex, indirectIndex] = obj.bufIndices;

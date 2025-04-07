@@ -6,6 +6,7 @@
 
 #include <future>
 #include <stdexcept>
+#include <vulkan/vulkan_core.h>
 
 namespace ge {
 
@@ -19,7 +20,8 @@ Context::Context() {
 
   std::vector<const char *> deviceExtensions = {
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME
   };
 
   createWindow();

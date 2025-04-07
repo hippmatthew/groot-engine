@@ -29,7 +29,7 @@ void Objects::destroy() {
 }
 
 void Objects::add(std::string material, std::string model) {
-  if (!ge_materials.materialMap.contains(material))
+  if (!ge_materials.builders.contains(material))
     throw std::runtime_error("groot-engine: material '" + material + "' not found");
 
   auto [vertices, indices] = ObjParser::parse(model);

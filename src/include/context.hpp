@@ -28,6 +28,7 @@ struct QueueFamily {
 class Context {
   friend class Allocator;
   friend class Material;
+  friend class Materials;
   friend class Objects;
   friend class Renderer;
 

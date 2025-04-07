@@ -9,23 +9,16 @@ namespace ge {
 std::mutex Materials::mutex;
 Materials * Materials::p_materials = nullptr;
 
-Material::MaterialBuilder::MaterialBuilder(std::string t) : tag(t) {}
-
-Material::MaterialBuilder& Material::MaterialBuilder::add_shader(ShaderType type, std::string path) {
+Materials::MaterialBuilder& Materials::MaterialBuilder::add_shader(ShaderType type, std::string path) {
   shaders[static_cast<vk::ShaderStageFlagBits>(type)] = path;
   return *this;
 }
 
-Material::Material(const MaterialBuilder& builder) {
-  createLayout(builder);
-  createGPipeline(builder);
+Materials::MaterialBuilder Materials::builder() {
+  return MaterialBuilder();
 }
 
-Material::MaterialBuilder Material::builder(std::string tag) {
-  return MaterialBuilder(tag);
-}
-
-Material::ShaderStages Material::getShaderStages(const std::map<vk::ShaderStageFlagBits, std::string>& shaders) const {
+Materials::ShaderStages Materials::getShaderStages(const std::map<vk::ShaderStageFlagBits, std::string>& shaders) const {
   std::vector<vk::raii::ShaderModule> modules;
   std::vector<vk::PipelineShaderStageCreateInfo> infos;
 
@@ -47,7 +40,37 @@ Material::ShaderStages Material::getShaderStages(const std::map<vk::ShaderStageF
   return { std::move(modules), std::move(infos) };
 }
 
-void Material::createLayout(const MaterialBuilder& builder) {
+Materials& Materials::instance() {
+  if (p_materials == nullptr)
+    p_materials = new Materials;
+
+  return *p_materials;
+}
+
+void Materials::destroy() {
+  if (p_materials == nullptr) return;
+
+  delete p_materials;
+  p_materials = nullptr;
+}
+
+void Materials::add(std::string tag, MaterialBuilder& builder) {
+  builders.emplace(tag, builder);
+}
+
+void Materials::add(std::string tag, MaterialBuilder&& builder) {
+  builders.emplace(tag, std::move(builder));
+}
+
+void Materials::load() {
+  createLayout();
+  for (const auto& [tag, builder] : builders) {
+    materials.emplace(tag, MaterialData{ .pipelineIndex = static_cast<unsigned int>(pipelines.size()) });
+    createPipeline(builder.shaders);
+  }
+}
+
+void Materials::createLayout() {
   layout = Context::device().createPipelineLayout(vk::PipelineLayoutCreateInfo{
     .setLayoutCount         = 0,
     .pSetLayouts            = nullptr,
@@ -56,8 +79,8 @@ void Material::createLayout(const MaterialBuilder& builder) {
   });
 }
 
-void Material::createGPipeline(const MaterialBuilder& builder) {
-  auto [modules, ci_stages] = getShaderStages(builder.shaders);
+void Materials::createPipeline(const std::map<vk::ShaderStageFlagBits, std::string>& shaders) {
+  auto [modules, ci_stages] = getShaderStages(shaders);
 
   vk::DynamicState dynStates[2] = {
     vk::DynamicState::eViewport,
@@ -138,7 +161,7 @@ void Material::createGPipeline(const MaterialBuilder& builder) {
     .depthAttachmentFormat    = ge_settings.depth_format
   };
 
-  gPipeline = Context::device().createGraphicsPipeline(nullptr, vk::GraphicsPipelineCreateInfo{
+  pipelines.emplace_back(Context::device().createGraphicsPipeline(nullptr, vk::GraphicsPipelineCreateInfo{
     .pNext                = &ci_rendering,
     .stageCount           = static_cast<unsigned int>(ci_stages.size()),
     .pStages              = ci_stages.data(),
@@ -151,31 +174,7 @@ void Material::createGPipeline(const MaterialBuilder& builder) {
     .pColorBlendState     = &ci_blend,
     .pDynamicState        = &ci_dynState,
     .layout               = layout
-  });
-}
-
-Materials& Materials::instance() {
-  if (p_materials == nullptr)
-    p_materials = new Materials;
-
-  return *p_materials;
-}
-
-void Materials::destroy() {
-  if (p_materials == nullptr) return;
-
-  delete p_materials;
-  p_materials = nullptr;
-}
-
-void Materials::add(Material::MaterialBuilder builder) {
-  builders.emplace_back(builder);
-  materialMap.emplace(std::make_pair(builder.tag, Material()));
-}
-
-void Materials::load() {
-  for (const auto& builder : builders)
-    materialMap[builder.tag] = std::move(Material(builder));
+  }));
 }
 
 } // namespace ge
