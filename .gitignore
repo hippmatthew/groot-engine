@@ -1,6 +1,8 @@
 # Directories
 /build/
 /.cache/
+/src.old/
+/tests.old/
 
 # Files
 .DS_Store
