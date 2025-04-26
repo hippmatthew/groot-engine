@@ -1,5 +1,7 @@
 #include "src/include/engine.hpp"
 
+#include <future>
+
 namespace ge {
 
 Engine::Engine() {
@@ -31,6 +33,12 @@ void Engine::add_material(std::string tag, MaterialManager::Builder&& builder) {
   m_materials.add(tag, std::move(builder));
 }
 
+void Engine::add_object(std::string material, std::string path) {
+  if (!m_materials.exists(material))
+    throw std::runtime_error("groot-engine: material '" + material + "' does not exist");
+  m_objects.add(material, path);
+}
+
 void Engine::run() {
   run([](){});
 }
@@ -43,11 +51,21 @@ void Engine::pollEvents() const {
   glfwPollEvents();
 }
 
+vk::raii::CommandBuffers Engine::getCmds(QueueFamilyType type, unsigned int count) const {
+  return vk::raii::CommandBuffers(m_context.device(), vk::CommandBufferAllocateInfo{
+    .commandPool        = m_commandPools.at(type),
+    .level              = vk::CommandBufferLevel::ePrimary,
+    .commandBufferCount = count
+  });
+}
+
 void Engine::initialize() {
   createWindow();
   m_context.initialize(*this);
   createSurface();
   m_context.initialize(*this);
+
+  createCommandPools();
 }
 
 void Engine::createWindow() {
@@ -79,8 +97,29 @@ void Engine::createSurface() {
     throw std::runtime_error("groot-engine: failed to create window surface");
 }
 
+void Engine::createCommandPools() {
+  m_commandPools.emplace(QueueFamilyType::Main, m_context.device().createCommandPool(vk::CommandPoolCreateInfo{
+    .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+    .queueFamilyIndex = m_context.queueFamily(QueueFamilyType::Main).index
+  }));
+
+  m_commandPools.emplace(QueueFamilyType::Compute, m_context.device().createCommandPool(vk::CommandPoolCreateInfo{
+    .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+    .queueFamilyIndex = m_context.queueFamily(QueueFamilyType::Compute).index
+  }));
+
+  m_commandPools.emplace(QueueFamilyType::Transfer, m_context.device().createCommandPool(vk::CommandPoolCreateInfo{
+    .flags            = vk::CommandPoolCreateFlagBits::eTransient,
+    .queueFamilyIndex = m_context.queueFamily(QueueFamilyType::Transfer).index
+  }));
+}
+
 void Engine::load() {
-  m_materials.load(*this);
+  std::future materialThread = std::async(std::launch::async, [this](){ this->m_materials.load(*this); });
+  std::future objectThread = std::async(std::launch::async, [this]() { this->m_objects.load(*this); });
+
+  materialThread.get();
+  objectThread.get();
 }
 
 } // namespace ge

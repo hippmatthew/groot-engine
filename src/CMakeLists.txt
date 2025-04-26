@@ -4,18 +4,22 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
 set(GROOT_INCLUDES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/allocator.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/engine.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/materials.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/objects.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/parsers.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/vkcontext.hpp
 )
 
 set(GROOT_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/engine.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/linalg.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/materials.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/objects.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/parsers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vertex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vkcontext.cpp

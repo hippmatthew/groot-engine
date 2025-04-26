@@ -6,7 +6,7 @@
 TEST_CASE( "engine", "[unit][engine]" ) {
   ge::Engine engine;
 
-  SECTION( "duplicate_materials" ) {
+  SECTION( "add_duplicate_material" ) {
     engine.add_material("test", ge::MaterialManager::Builder());
 
     bool caught = false;
@@ -20,7 +20,19 @@ TEST_CASE( "engine", "[unit][engine]" ) {
     CHECK( caught );
   }
 
-  SECTION( "end_to_end" ) {
+  SECTION( "object_with_invalid_material" ) {
+    bool caught = false;
+    try {
+      engine.add_object("test", "../tests/dat/quad.obj");
+    }
+    catch (const std::runtime_error& e) {
+      caught = true;
+      CHECK( e.what() == std::string("groot-engine: material 'test' does not exist"));
+    }
+    CHECK( caught );
+  }
+
+  SECTION( "full_test" ) {
     engine.add_material("test", ge::MaterialManager::Builder()
       .add_shader(ge::ShaderStage::VertexShader, "shaders/shader.vert.spv")
       .add_shader(ge::ShaderStage::FragmentShader, "shaders/shader.frag.spv")

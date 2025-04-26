@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/include/materials.hpp"
+#include "src/include/objects.hpp"
 #include "src/include/vkcontext.hpp"
 
 #include <GLFW/glfw3.h>
@@ -38,7 +39,9 @@ struct Settings {
 };
 
 class Engine {
+  friend class Allocator;
   friend class MaterialManager;
+  friend class ObjectManager;
   friend class VulkanContext;
 
   public:
@@ -55,6 +58,7 @@ class Engine {
 
     void add_material(std::string, const MaterialManager::Builder&);
     void add_material(std::string, MaterialManager::Builder&&);
+    void add_object(std::string, std::string);
     void run();
 
     template <typename Func>
@@ -72,10 +76,12 @@ class Engine {
   private:
     bool shouldClose() const;
     void pollEvents() const;
+    vk::raii::CommandBuffers getCmds(QueueFamilyType, unsigned int) const;
 
     void initialize();
     void createWindow();
     void createSurface();
+    void createCommandPools();
     void load();
 
   private:
@@ -83,9 +89,12 @@ class Engine {
 
     VulkanContext m_context;
     MaterialManager m_materials;
+    ObjectManager m_objects;
 
     GLFWwindow * m_window = nullptr;
     vk::raii::SurfaceKHR m_surface = nullptr;
+
+    std::map<QueueFamilyType, vk::raii::CommandPool> m_commandPools;
 };
 
 } // namespace ge
