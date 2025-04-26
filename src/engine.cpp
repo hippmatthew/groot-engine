@@ -15,8 +15,20 @@ Engine::Engine(Settings&& settings) : m_settings(settings) {
 }
 
 Engine::~Engine() {
-  glfwDestroyWindow(p_window);
+  glfwDestroyWindow(m_window);
   glfwTerminate();
+}
+
+void Engine::add_material(std::string tag, const MaterialManager::Builder& builder) {
+  if (m_materials.exists(tag))
+    throw std::runtime_error("groot-engine: material '" + tag + "' already exists");
+  m_materials.add(tag, builder);
+}
+
+void Engine::add_material(std::string tag, MaterialManager::Builder&& builder) {
+  if (m_materials.exists(tag))
+    throw std::runtime_error("groot-engine: material '" + tag + "' already exists");
+  m_materials.add(tag, std::move(builder));
 }
 
 void Engine::run() {
@@ -24,7 +36,7 @@ void Engine::run() {
 }
 
 bool Engine::shouldClose() const {
-  return glfwWindowShouldClose(p_window);
+  return glfwWindowShouldClose(m_window);
 }
 
 void Engine::pollEvents() const {
@@ -45,7 +57,7 @@ void Engine::createWindow() {
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-  p_window = glfwCreateWindow(
+  m_window = glfwCreateWindow(
     m_settings.window_width,
     m_settings.window_height,
     m_settings.window_title.c_str(),
@@ -53,18 +65,22 @@ void Engine::createWindow() {
     nullptr
   );
 
-  if (p_window == nullptr)
+  if (m_window == nullptr)
     throw std::runtime_error("groot-engine: failed to create window");
 }
 
 void Engine::createSurface() {
   VkSurfaceKHR surface;
-  if (glfwCreateWindowSurface(*m_context.instance(), p_window, nullptr, &surface) != VK_SUCCESS)
+  if (glfwCreateWindowSurface(*m_context.instance(), m_window, nullptr, &surface) != VK_SUCCESS)
     throw std::runtime_error("groot-engine: failed to create window surface");
 
   m_surface = vk::raii::SurfaceKHR(m_context.instance(), surface);
   if (*m_surface == nullptr)
     throw std::runtime_error("groot-engine: failed to create window surface");
+}
+
+void Engine::load() {
+  m_materials.load(*this);
 }
 
 } // namespace ge

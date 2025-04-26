@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/include/materials.hpp"
 #include "src/include/vkcontext.hpp"
 
 #include <GLFW/glfw3.h>
@@ -37,6 +38,7 @@ struct Settings {
 };
 
 class Engine {
+  friend class MaterialManager;
   friend class VulkanContext;
 
   public:
@@ -51,14 +53,20 @@ class Engine {
     Engine& operator = (Engine&) = delete;
     Engine& operator = (Engine&&) = delete;
 
+    void add_material(std::string, const MaterialManager::Builder&);
+    void add_material(std::string, MaterialManager::Builder&&);
     void run();
 
     template <typename Func>
     void run(Func&& code) {
+      load();
+
       while (!shouldClose()) {
         pollEvents();
         code();
       }
+
+      m_context.device().waitIdle();
     }
 
   private:
@@ -68,13 +76,15 @@ class Engine {
     void initialize();
     void createWindow();
     void createSurface();
+    void load();
 
   private:
     Settings m_settings;
 
     VulkanContext m_context;
+    MaterialManager m_materials;
 
-    GLFWwindow * p_window = nullptr;
+    GLFWwindow * m_window = nullptr;
     vk::raii::SurfaceKHR m_surface = nullptr;
 };
 
