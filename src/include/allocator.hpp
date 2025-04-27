@@ -5,8 +5,9 @@
 #include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_beta.h>
 
-#include <vector>
 #include <map>
+#include <tuple>
+#include <vector>
 
 namespace ge {
 
@@ -20,6 +21,15 @@ class Allocator {
 
   using CommandOutput = std::map<QueueFamilyType, vk::raii::CommandPool>;
 
+  using DepthOutput = std::tuple<
+    vk::raii::DeviceMemory,
+    vk::raii::Image,
+    vk::raii::ImageView
+  >;
+
+  using FenceOutput = std::vector<vk::raii::Fence>;
+  using SemaphoreOutput = std::vector<vk::raii::Semaphore>;
+
   public:
     Allocator() = delete;
     Allocator(Allocator&) = delete;
@@ -32,6 +42,9 @@ class Allocator {
 
     static BufferOutput bufferPool(const Engine&, const std::vector<vk::BufferCreateInfo>&, vk::MemoryPropertyFlags);
     static CommandOutput commandPools(const Engine&);
+    static DepthOutput depthResources(const Engine&);
+    static FenceOutput fences(const Engine&, unsigned int, bool signaled = false);
+    static SemaphoreOutput semaphores(const Engine&, unsigned int);
 
   private:
     static vk::raii::DeviceMemory allocate(

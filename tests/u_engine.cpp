@@ -38,6 +38,8 @@ TEST_CASE( "engine", "[unit][engine]" ) {
       .add_shader(ge::ShaderStage::FragmentShader, "shaders/shader.frag.spv")
     );
 
+    engine.add_object("test", "../tests/dat/quad.obj");
+
     bool success = true;
     try {
       engine.run();

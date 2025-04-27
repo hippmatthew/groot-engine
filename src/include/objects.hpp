@@ -13,6 +13,13 @@ namespace ge {
 class Engine;
 
 class ObjectManager {
+  using Output = std::tuple<
+    const vk::raii::Buffer&,
+    const vk::raii::Buffer&,
+    const vk::raii::Buffer&,
+    const unsigned int
+  >;
+
   private:
     struct IndirectCommand {
       unsigned int indexCount = 0;
@@ -38,6 +45,11 @@ class ObjectManager {
 
     ObjectManager& operator=(ObjectManager&) = delete;
     ObjectManager& operator=(ObjectManager&&) = delete;
+
+    const Output operator[](std::string) const;
+
+    bool hasObjects(std::string) const;
+    unsigned int commandSize() const;
 
     void add(const std::string&, const std::string&);
     void load(const Engine&);

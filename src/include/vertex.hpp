@@ -25,9 +25,9 @@ class Vertex {
     bool operator == (const Vertex&) const;
 
   public:
-    vec<3> position = vec<3>::zero();
-    vec<2> uv = vec<2>::zero();
-    vec<3> normal = vec<3>::zero();
+    vec<3> m_position = vec<3>::zero();
+    vec<2> m_uv = vec<2>::zero();
+    vec<3> m_normal = vec<3>::zero();
 };
 
 } // namespace ge

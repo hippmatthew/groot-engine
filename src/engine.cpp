@@ -66,6 +66,8 @@ void Engine::initialize() {
   m_context.initialize(*this);
 
   createCommandPools();
+
+  m_renderer.initialize(*this);
 }
 
 void Engine::createWindow() {

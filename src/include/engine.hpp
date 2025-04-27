@@ -2,6 +2,7 @@
 
 #include "src/include/materials.hpp"
 #include "src/include/objects.hpp"
+#include "src/include/renderer.hpp"
 #include "src/include/vkcontext.hpp"
 
 #include <GLFW/glfw3.h>
@@ -42,6 +43,7 @@ class Engine {
   friend class Allocator;
   friend class MaterialManager;
   friend class ObjectManager;
+  friend class Renderer;
   friend class VulkanContext;
 
   public:
@@ -68,6 +70,7 @@ class Engine {
       while (!shouldClose()) {
         pollEvents();
         code();
+        m_renderer.render(*this);
       }
 
       m_context.device().waitIdle();
@@ -95,6 +98,8 @@ class Engine {
     vk::raii::SurfaceKHR m_surface = nullptr;
 
     std::map<QueueFamilyType, vk::raii::CommandPool> m_commandPools;
+
+    Renderer m_renderer;
 };
 
 } // namespace ge

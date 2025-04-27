@@ -30,7 +30,7 @@ class vec {
       typename ...Tps,
       typename = std::enable_if<sizeof...(Tps) == N
     >>
-    vec(Tps... args) : data{ static_cast<T>(args)... } {}
+    vec(Tps... args) : m_data{ static_cast<T>(args)... } {}
 
     template<
       unsigned int M, typename... Tps,
@@ -40,18 +40,18 @@ class vec {
     )>>
     vec(vec<M, T> v, Tps... args) {
       for (unsigned int i = 0; i < M; ++i)
-        data[i] = v[i];
+        m_data[i] = v[i];
 
       T extra[] = { static_cast<T>(args)... };
 
       for (unsigned int i = M; i < N; ++i)
-        data[i] = extra[i - M];
+        m_data[i] = extra[i - M];
     }
 
     template<typename S, typename = std::enable_if<!std::is_same_v<S, T>>>
     vec(vec<N, S> v) {
       for (unsigned int i = 0; i < N; ++i)
-        data[i] = static_cast<T>(v[i]);
+        m_data[i] = static_cast<T>(v[i]);
     }
 
     ~vec() = default;
@@ -86,9 +86,9 @@ class vec {
     template <typename = std::enable_if<N == 3>>
     vec<3, T> cross(const vec& rhs) const {
       return vec<3, T>(
-        data[1] * rhs[2] - data[2] * rhs[1],
-        data[2] * rhs[0] - data[0] * rhs[2],
-        data[0] * rhs[1] - data[1] * rhs[0]
+        m_data[1] * rhs[2] - m_data[2] * rhs[1],
+        m_data[2] * rhs[0] - m_data[0] * rhs[2],
+        m_data[0] * rhs[1] - m_data[1] * rhs[0]
       );
     }
 
@@ -96,7 +96,7 @@ class vec {
     vec() = default;
 
   private:
-    T data[N];
+    T m_data[N];
 };
 
 template <unsigned int N, typename T = float>
@@ -120,20 +120,20 @@ class mat {
         sizeof...(Rows) == N &&
         std::conjunction_v<std::is_convertible<Rows, vec<N, T>>...>
     >>
-    mat(Rows... args) : data{ static_cast<vec<N, T>>(args)... } {}
+    mat(Rows... args) : m_data{ static_cast<vec<N, T>>(args)... } {}
 
     template <unsigned int M, typename = std::enable_if<M < N>>
     mat(mat<M, T> m) {
       for (unsigned int i = 0; i < M; ++i) {
         for (unsigned int j = 0; j < M; ++j)
-          data[i][j] = m[i][j];
+          m_data[i][j] = m[i][j];
       }
     }
 
     template <typename S, typename = std::enable_if<!std::is_same_v<T, S>>>
     mat(mat<N, S> m) {
       for (unsigned int i = 0; i < N; ++i)
-        data[i] = static_cast<vec<N, T>>(m[i]);
+        m_data[i] = static_cast<vec<N, T>>(m[i]);
     }
 
     ~mat() = default;
@@ -243,7 +243,7 @@ class mat {
     mat();
 
   private:
-    vec<N, T> data[N];
+    vec<N, T> m_data[N];
 };
 
 } // namespace ge

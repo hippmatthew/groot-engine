@@ -9,8 +9,39 @@ MaterialManager::Builder& MaterialManager::Builder::add_shader(ShaderStage stage
   return *this;
 }
 
+MaterialManager::Iterator::Iterator(
+  const MaterialManager * manager,
+  const std::map<std::string, Material>::const_iterator& iterator
+) : m_manager(manager), m_iterator(iterator) {}
+
+bool MaterialManager::Iterator::operator!=(const Iterator& rhs) const {
+  return m_iterator != rhs.m_iterator;
+}
+
+MaterialManager::Iterator::Output MaterialManager::Iterator::operator*() const {
+  auto& [tag, material] = *m_iterator;
+  return Output(tag, m_manager->m_pipelines[material.pipeline]);
+}
+
+MaterialManager::Iterator& MaterialManager::Iterator::operator++() {
+  ++m_iterator;
+  return *this;
+}
+
+MaterialManager::Iterator MaterialManager::begin() const {
+  return Iterator(this, m_materials.begin());
+}
+
+MaterialManager::Iterator MaterialManager::end() const {
+  return Iterator(this, m_materials.end());
+}
+
 bool MaterialManager::exists(std::string tag) const {
   return m_materials.contains(tag);
+}
+
+const vk::raii::PipelineLayout& MaterialManager::layout() const {
+  return m_layout;
 }
 
 void MaterialManager::add(const std::string& tag, const Builder& builder) {

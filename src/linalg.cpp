@@ -8,7 +8,7 @@ namespace ge {
 template <unsigned int N, typename T>
 vec<N, T>::vec(T val) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] = val;
+    m_data[i] = val;
 }
 
 template <unsigned int N, typename T>
@@ -16,7 +16,7 @@ vec<N, T>& vec<N, T>::operator += (const vec& rhs) {
   if (&rhs == this) return *this;
 
   for (unsigned int i = 0; i < N; ++i)
-    data[i] += rhs[i];
+    m_data[i] += rhs[i];
 
   return *this;
 }
@@ -26,7 +26,7 @@ vec<N, T>& vec<N, T>::operator -= (const vec& rhs) {
   if (&rhs == this) return *this;
 
   for (unsigned int i = 0; i < N; ++i)
-    data[i] -= rhs[i];
+    m_data[i] -= rhs[i];
 
   return *this;
 }
@@ -34,7 +34,7 @@ vec<N, T>& vec<N, T>::operator -= (const vec& rhs) {
 template <unsigned int N, typename T>
 vec<N, T>& vec<N, T>::operator *= (T rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] *= rhs;
+    m_data[i] *= rhs;
 
   return *this;
 }
@@ -42,7 +42,7 @@ vec<N, T>& vec<N, T>::operator *= (T rhs) {
 template <unsigned int N, typename T>
 vec<N, T>& vec<N, T>::operator /= (T rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] /= rhs;
+    m_data[i] /= rhs;
 
   return *this;
 }
@@ -52,7 +52,7 @@ T& vec<N, T>::operator [] (unsigned int index) {
   if (index > N - 1)
     throw std::out_of_range("groot-engine: vec index out of range");
 
-  return data[index];
+  return m_data[index];
 }
 
 template <unsigned int N, typename T>
@@ -60,41 +60,41 @@ const T& vec<N, T>::operator [] (unsigned int index) const {
   if (index > N - 1)
     throw std::out_of_range("groot-engine: vec index out of range");
 
-  return data[index];
+  return m_data[index];
 }
 
 template <unsigned int N, typename T>
 bool vec<N, T>::operator == (const vec& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] != rhs[i]) return false;
+    if (m_data[i] != rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool vec<N, T>::operator < (const vec& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] >= rhs[i]) return false;
+    if (m_data[i] >= rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool vec<N, T>::operator <= (const vec& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] > rhs[i]) return false;
+    if (m_data[i] > rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool vec<N, T>::operator > (const vec& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] <= rhs[i]) return false;
+    if (m_data[i] <= rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool vec<N, T>::operator >= (const vec& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] < rhs[i]) return false;
+    if (m_data[i] < rhs[i]) return false;
   return true;
 }
 
@@ -103,7 +103,7 @@ vec<N, T> vec<N, T>::operator + (const vec& rhs) const {
   vec res;
 
   for (unsigned int i = 0; i < N; ++i)
-    res[i] = data[i] + rhs[i];
+    res[i] = m_data[i] + rhs[i];
 
   return res;
 }
@@ -123,7 +123,7 @@ float vec<N, T>::operator * (const vec& rhs) const {
   float sum = 0;
 
   for (unsigned int i = 0; i < N; ++i)
-    sum += data[i] * rhs[i];
+    sum += m_data[i] * rhs[i];
 
   return sum;
 }
@@ -151,7 +151,7 @@ vec<N, T> vec<N, T>::normalized() const {
 template <unsigned int N, typename T>
 mat<N, T>& mat<N, T>::operator += (const mat& rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] += rhs[i];
+    m_data[i] += rhs[i];
 
   return *this;
 }
@@ -159,7 +159,7 @@ mat<N, T>& mat<N, T>::operator += (const mat& rhs) {
 template <unsigned int N, typename T>
 mat<N, T>& mat<N, T>::operator -= (const mat& rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] -= rhs[i];
+    m_data[i] -= rhs[i];
 
   return *this;
 }
@@ -172,9 +172,9 @@ mat<N, T>& mat<N, T>::operator *= (const mat& rhs) {
     vec<N, T> row;
 
     for (unsigned int j = 0; j < N; ++j)
-      row[j] = data[i] * t[j];
+      row[j] = m_data[i] * t[j];
 
-    data[i] = row;
+    m_data[i] = row;
   }
 
   return *this;
@@ -183,7 +183,7 @@ mat<N, T>& mat<N, T>::operator *= (const mat& rhs) {
 template <unsigned int N, typename T>
 mat<N, T>& mat<N, T>::operator *= (T rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] *= rhs;
+    m_data[i] *= rhs;
 
   return *this;
 }
@@ -191,7 +191,7 @@ mat<N, T>& mat<N, T>::operator *= (T rhs) {
 template <unsigned int N, typename T>
 mat<N, T>& mat<N, T>::operator /= (T rhs) {
   for (unsigned int i = 0; i < N; ++i)
-    data[i] /= rhs;
+    m_data[i] /= rhs;
 
   return *this;
 }
@@ -201,7 +201,7 @@ vec<N, T>& mat<N, T>::operator [] (unsigned int index) {
   if (index > N - 1)
     throw std::out_of_range("groot-engine: mat index out of range");
 
-  return data[index];
+  return m_data[index];
 }
 
 template <unsigned int N, typename T>
@@ -209,41 +209,41 @@ const vec<N, T>& mat<N, T>::operator [] (unsigned int index) const {
   if (index > N - 1)
     throw std::out_of_range("groot-engine: mat index out of range");
 
-  return data[index];
+  return m_data[index];
 }
 
 template <unsigned int N, typename T>
 bool mat<N, T>::operator == (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] != rhs[i]) return false;
+    if (m_data[i] != rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool mat<N, T>::operator < (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] >= rhs[i]) return false;
+    if (m_data[i] >= rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool mat<N, T>::operator <= (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] > rhs[i]) return false;
+    if (m_data[i] > rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool mat<N, T>::operator > (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] <= rhs[i]) return false;
+    if (m_data[i] <= rhs[i]) return false;
   return true;
 }
 
 template <unsigned int N, typename T>
 bool mat<N, T>::operator >= (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i)
-    if (data[i] < rhs[i]) return false;
+    if (m_data[i] < rhs[i]) return false;
   return true;
 }
 
@@ -252,7 +252,7 @@ mat<N, T> mat<N, T>::operator + (const mat& rhs) const {
   mat m;
 
   for (unsigned int i = 0; i < N; ++i)
-    m[i] = data[i] + rhs[i];
+    m[i] = m_data[i] + rhs[i];
 
   return m;
 }
@@ -262,7 +262,7 @@ mat<N, T> mat<N, T>::operator - (const mat& rhs) const {
   mat m;
 
   for (unsigned int i = 0; i < N; ++i)
-    m[i] = data[i] - rhs[i];
+    m[i] = m_data[i] - rhs[i];
 
   return m;
 }
@@ -272,7 +272,7 @@ mat<N, T> mat<N, T>::operator - () const {
   mat m;
 
   for (unsigned int i = 0; i < N; ++i)
-    m[i] = -data[i];
+    m[i] = -m_data[i];
 
   return m;
 }
@@ -285,7 +285,7 @@ mat<N, T> mat<N, T>::operator * (const mat& rhs) const {
   for (unsigned int i = 0; i < N; ++i) {
     vec<N, T> row;
     for (unsigned int j = 0; j < N; ++j)
-      m[i][j] = data[i] * t[j];
+      m[i][j] = m_data[i] * t[j];
   }
 
   return m;
@@ -296,7 +296,7 @@ vec<N, T> mat<N, T>::operator * (const vec<N, T>& rhs) const {
   vec<N, T> v;
 
   for (unsigned int i = 0; i < N; ++i)
-    v[i] = data[i] * rhs;
+    v[i] = m_data[i] * rhs;
 
   return v;
 }
@@ -306,7 +306,7 @@ mat<N, T> mat<N, T>::operator / (T rhs) const {
   mat m;
 
   for (unsigned int i = 0; i < N; ++i)
-    m[i] = data[i] / rhs;
+    m[i] = m_data[i] / rhs;
 
   return m;
 }
@@ -322,7 +322,7 @@ mat<N, T> mat<N, T>::transpose() const {
 
   for (unsigned int i = 0; i < N; ++i) {
     for (unsigned int j = 0; j < N; ++j)
-      t[i][j] = data[j][i];
+      t[i][j] = m_data[j][i];
   }
 
   return t;
@@ -331,7 +331,7 @@ mat<N, T> mat<N, T>::transpose() const {
 template <unsigned int N, typename T>
 mat<N, T>::mat() {
   for (unsigned int i = 0; i < N; ++i)
-    data[i][i] = 1;
+    m_data[i][i] = 1;
 }
 
 template class vec<2, float>;

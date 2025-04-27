@@ -51,6 +51,30 @@ class MaterialManager {
       unsigned int pipeline = 0;
     };
 
+    class Iterator {
+      using Output = std::pair<const std::string&, const vk::raii::Pipeline&>;
+
+      public:
+        Iterator(const MaterialManager *, const std::map<std::string, Material>::const_iterator&);
+        Iterator(const Iterator&) = default;
+        Iterator(Iterator&&) = default;
+
+        ~Iterator() = default;
+
+        Iterator& operator=(const Iterator&) = default;
+        Iterator& operator=(Iterator&&) = default;
+
+        bool operator!=(const Iterator&) const;
+
+        Output operator*() const;
+
+        Iterator& operator++();
+
+      private:
+        const MaterialManager * m_manager;
+        std::map<std::string, Material>::const_iterator m_iterator;
+    };
+
   public:
     MaterialManager() = default;
     MaterialManager(MaterialManager&) = delete;
@@ -61,7 +85,11 @@ class MaterialManager {
     MaterialManager& operator=(MaterialManager&) = delete;
     MaterialManager& operator=(MaterialManager&&) = delete;
 
+    Iterator begin() const;
+    Iterator end() const;
+
     bool exists(std::string) const;
+    const vk::raii::PipelineLayout& layout() const;
 
     void add(const std::string&, const Builder&);
     void add(const std::string&, Builder&&);

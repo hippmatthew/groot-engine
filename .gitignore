@@ -3,6 +3,7 @@
 /.cache/
 /src.old/
 /tests.old/
+/__cmake_systeminformation/
 
 # Files
 .DS_Store

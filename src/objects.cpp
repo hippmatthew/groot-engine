@@ -5,6 +5,25 @@
 
 namespace ge {
 
+const ObjectManager::Output ObjectManager::operator[](std::string material) const {
+  const ObjectData& obj = m_objects.at(material);
+
+  return {
+    m_vertexBuffers[obj.bufferIndex],
+    m_indexBuffers[obj.bufferIndex],
+    m_indirectBuffers[obj.bufferIndex],
+    obj.commands.size()
+  };
+}
+
+bool ObjectManager::hasObjects(std::string material) const {
+  return m_objects.contains(material);
+}
+
+unsigned int ObjectManager::commandSize() const {
+  return sizeof(IndirectCommand);
+}
+
 void ObjectManager::add(const std::string& material, const std::string& path) {
   auto [vertices, indices] = ObjParser::parse(path);
 
@@ -123,7 +142,7 @@ void ObjectManager::load(const Engine& engine) {
     .pCommandBuffers    = &*transferCmd
   };
 
-  vk::raii::Fence transferFence = engine.m_context.device().createFence({});
+  vk::raii::Fence transferFence = std::move(Allocator::fences(engine, 1)[0]);
 
   engine.m_context.queueFamily(QueueFamilyType::Transfer).queue.submit(transferSubmit, transferFence);
 
