@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/include/materials.hpp"
+
 #include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_beta.h>
 
@@ -52,6 +54,8 @@ class Renderer {
     std::vector<vk::raii::Fence> m_flightFences;
     std::vector<vk::raii::Semaphore> m_renderSemaphores;
     std::vector<vk::raii::Semaphore> m_imageSemaphores;
+
+    PushConstants m_constants;
 };
 
 } // namespace ge

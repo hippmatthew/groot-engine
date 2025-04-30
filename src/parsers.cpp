@@ -12,9 +12,9 @@ ObjParser::Output ObjParser::parse(std::string path) {
   std::ifstream file(path);
   if (!file) throw std::runtime_error("groot-engine: failed to open " + path);
 
-  std::vector<vec<3>> positions;
-  std::vector<vec<2>> uvs;
-  std::vector<vec<3>> normals;
+  std::vector<vec3> positions;
+  std::vector<vec2> uvs;
+  std::vector<vec3> normals;
 
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
@@ -29,18 +29,18 @@ ObjParser::Output ObjParser::parse(std::string path) {
     ss >> key;
 
     if (key == "v") {
-      vec<3> position = vec<3>::zero();
-      ss >> position[0] >> position[1] >> position[2];
+      vec3 position = vec3(0.0);
+      ss >> position.x >> position.y >> position.z;
       positions.emplace_back(position);
     }
     else if (key == "vt") {
-      vec<2> uv = vec<2>::zero();
-      ss >> uv[0] >> uv[1];
+      vec2 uv = vec2(0.0);
+      ss >> uv.x >> uv.y;
       uvs.emplace_back(uv);
     }
     else if (key == "vn") {
-      vec<3> normal = vec<3>::zero();
-      ss >> normal[0] >> normal[1] >> normal[2];
+      vec3 normal = vec3(0.0);
+      ss >> normal.x >> normal.y >> normal.z;
       normals.emplace_back(normal);
     }
     else if (key == "f") {

@@ -33,7 +33,7 @@ void ObjectManager::add(const std::string& material, const std::string& path) {
     .instanceCount  = 1,
     .firstIndex     = static_cast<unsigned int>(obj.indices.size()),
     .vertexOffset   = static_cast<unsigned int>(obj.vertices.size()),
-    .firstInstance  = 0
+    .firstInstance  = static_cast<unsigned int>(obj.commands.size())
   });
   obj.vertices.insert(obj.vertices.end(), vertices.begin(), vertices.end());
   obj.indices.insert(obj.indices.end(), indices.begin(), indices.end());

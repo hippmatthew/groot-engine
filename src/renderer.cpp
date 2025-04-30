@@ -2,6 +2,8 @@
 #include "src/include/engine.hpp"
 #include "src/include/renderer.hpp"
 
+#include <numbers>
+
 namespace ge {
 
 void Renderer::initialize(Engine& engine) {
@@ -20,6 +22,19 @@ void Renderer::initialize(Engine& engine) {
   m_renderCmds = engine.getCmds(QueueFamilyType::Main, engine.m_settings.buffer_mode);
 
   createSyncObjects(engine);
+
+  mat4 view = mat4::view({ 0.0, 0.0, -2.0 }, { 0.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 });
+
+  float ar = static_cast<float>(engine.m_settings.extent.width) / static_cast<float>(engine.m_settings.extent.height);
+  mat4 perspective = mat4::perspective(60.0f * std::numbers::pi / 180.0f, ar, 0.01f, 1000.0f);
+
+  m_constants.camera = perspective * view;
+  m_constants.transforms[0] = {
+    { 1.0f, 0.0f, 0.0f, 0.0f },
+    { 0.0f, 1.0f, 0.0f, 0.0f },
+    { 0.0f, 0.0f, 1.0f, 0.0f },
+    { 0.0f, 0.0f, 0.0f, 1.0f }
+  };
 }
 
 void Renderer::render(const Engine& engine) {
@@ -254,6 +269,13 @@ void Renderer::draw(const Engine& engine) {
     if (!engine.m_objects.hasObjects(material)) continue;
 
     m_renderCmds[m_frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+
+    m_renderCmds[m_frameIndex].pushConstants(
+      engine.m_materials.layout(),
+      vk::ShaderStageFlagBits::eVertex,
+      0,
+      vk::ArrayProxy<const char>(sizeof(PushConstants), reinterpret_cast<const char *>(&m_constants))
+    );
 
     const auto& [vertexBuffer, indexBuffer, indirectBuffer, commandCount] = engine.m_objects[material];
 

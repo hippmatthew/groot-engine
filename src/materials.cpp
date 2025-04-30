@@ -85,11 +85,16 @@ MaterialManager::ShaderStages MaterialManager::getShaderStages(const Engine& eng
 }
 
 void MaterialManager::createLayout(const Engine& engine) {
+  vk::PushConstantRange range{
+    .stageFlags = vk::ShaderStageFlagBits::eVertex,
+    .size       = sizeof(PushConstants)
+  };
+
   m_layout = engine.m_context.device().createPipelineLayout(vk::PipelineLayoutCreateInfo{
     .setLayoutCount         = 0,
     .pSetLayouts            = nullptr,
-    .pushConstantRangeCount = 0,
-    .pPushConstantRanges    = nullptr
+    .pushConstantRangeCount = 1,
+    .pPushConstantRanges    = &range
   });
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/include/linalg.hpp"
+
 #include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_beta.h>
 
@@ -17,6 +19,11 @@ enum ShaderStage {
   TesselationEvaluationShader = static_cast<unsigned int>(vk::ShaderStageFlagBits::eTessellationEvaluation),
   FragmentShader = static_cast<unsigned int>(vk::ShaderStageFlagBits::eFragment),
   ComputeShader = static_cast<unsigned int>(vk::ShaderStageFlagBits::eCompute)
+};
+
+struct PushConstants {
+  mat4 camera = mat4::identity();
+  mat4 transforms[1] = { mat4::identity() };
 };
 
 class MaterialManager {

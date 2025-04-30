@@ -12,7 +12,7 @@ class Vertex {
     Vertex() = default;
     Vertex(const Vertex&) = default;
     Vertex(Vertex&&) = default;
-    Vertex(vec<3>, vec<2>, vec<3>);
+    Vertex(vec3, vec2, vec3);
 
     ~Vertex() = default;
 
@@ -25,9 +25,9 @@ class Vertex {
     bool operator == (const Vertex&) const;
 
   public:
-    vec<3> m_position = vec<3>::zero();
-    vec<2> m_uv = vec<2>::zero();
-    vec<3> m_normal = vec<3>::zero();
+    vec3 m_position = vec3(0.0f);
+    vec2 m_uv = vec2(0.0f);
+    vec3 m_normal = vec3(0.0f);
 };
 
 } // namespace ge

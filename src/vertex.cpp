@@ -4,7 +4,7 @@
 
 namespace ge {
 
-Vertex::Vertex(vec<3> v, vec<2> u, vec<3> n) : m_position(v), m_uv(u), m_normal(n) {}
+Vertex::Vertex(vec3 v, vec2 u, vec3 n) : m_position(v), m_uv(u), m_normal(n) {}
 
 vk::VertexInputBindingDescription Vertex::binding() {
   return vk::VertexInputBindingDescription{
@@ -37,7 +37,7 @@ std::array<vk::VertexInputAttributeDescription, 3> Vertex::attributes() {
   };
 }
 
-bool Vertex::operator == (const Vertex& rhs) const {
+bool Vertex::operator==(const Vertex& rhs) const {
   return m_position == rhs.m_position && m_uv == rhs.m_uv && m_normal == rhs.m_normal;
 }
 

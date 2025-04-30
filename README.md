@@ -4,6 +4,8 @@ A custom graphics engine that automates the Vulkan setup process
 
 [documentation](https://hippmatthew.github.io/groot-engine)
 
+> GitHub pages is currently not set up
+
 ### Installation
 
 > Groot Engine uses CMake to generate build files. As such, the following instructions will assume that you are using CMake.
@@ -18,7 +20,7 @@ A custom graphics engine that automates the Vulkan setup process
 6. compile Groot Engine with `make`
 7. The compiled shared library will be placed in `<build_directory>/src`
 
-To use Groot Engine, make sure to include the headers `-I<groot/engine/headers/path>`, and link to the shared library with `-L<groot/engine/library/path> -lgeng` when compiling your binaries that require it
+To use Groot Engine, make sure to include the headers `-I<groot/engine/headers/path>`, and link to the shared library with `-L<groot/engine/library/path> -lgroot` when compiling your binaries that require it
 
 #### Windows System
 

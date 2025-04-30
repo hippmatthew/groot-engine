@@ -14,109 +14,201 @@ TEST_CASE( "vec", "[unit][linalg]" ) {
   float num4 = random();
 
   SECTION( "add" ) {
-    CHECK( ge::vec<2>(num1, num2) + ge::vec<2>(num3, num4) == ge::vec<2>(num1 + num3, num2 + num4) );
+    ge::vec2 exp2 = ge::vec2(num1, num2) + ge::vec2(num3, num4);
+    ge::vec2 res2 = ge::vec2(num1 + num3, num2 + num4);
+
+    ge::vec3 exp3 = ge::vec3(num1, num2, num3) + ge::vec3(num4, num1, num2);
+    ge::vec3 res3 = ge::vec3(num1 + num4, num2 + num1, num3 + num2);
+
+    ge::vec4 exp4 = ge::vec4(num1, num3, num3, num4) + ge::vec4(num2, num4, num2, num1);
+    ge::vec4 res4 = ge::vec4(num1 + num2, num3 + num4, num3 + num2, num4 + num1);
+
+    CHECK( tests::error(exp2, res2) <= tests::g_tolerance );
+    CHECK( tests::error(exp3, res3) <= tests::g_tolerance );
+    CHECK( tests::error(exp4, res4) <= tests::g_tolerance );
   }
 
   SECTION( "add_assignment" ) {
-    ge::vec<2> u(num1, num2);
-    ge::vec<2> v(num3, num4);
+    ge::vec2 res2(num1, num2);
+    ge::vec2 exp2(num1 + num3, num2 + num4);
+    res2 += ge::vec2(num3, num4);
 
-    u += v;
+    ge::vec3 res3(num1, num2, num3);
+    ge::vec3 exp3(num1 + num4, num2 + num1, num3 + num2);
+    res3 += ge::vec3(num4, num1, num2);
 
-    CHECK( u == ge::vec<2>(num1 + num3, num2 + num4) );
+    ge::vec4 res4(num1, num3, num3, num4);
+    ge::vec4 exp4(num1 + num2, num3 + num4, num3 + num2, num4 + num1);
+    res4 += ge::vec4(num2, num4, num2, num1);
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "subtract") {
-    CHECK( ge::vec<2>(num1, num2) - ge::vec<2>(num3, num4) == ge::vec<2>(num1 - num3, num2 - num4) );
+    ge::vec2 res2 = ge::vec2(num1, num2) - ge::vec2(num3, num4);
+    ge::vec2 exp2 = ge::vec2(num1 - num3, num2 - num4);
+
+    ge::vec3 res3 = ge::vec3(num1, num2, num3) - ge::vec3(num4, num1, num2);
+    ge::vec3 exp3 = ge::vec3(num1 - num4, num2 - num1, num3 - num2);
+
+    ge::vec4 res4 = ge::vec4(num1, num3, num3, num4) - ge::vec4(num2, num4, num2, num1);
+    ge::vec4 exp4 = ge::vec4(num1 - num2, num3 - num4, num3 - num2, num4 - num1);
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "subtract_assignment" ) {
-    ge::vec<2> u(num1, num2);
-    ge::vec<2> v(num3, num4);
+    ge::vec2 res2(num1, num2);
+    ge::vec2 exp2(num1 - num3, num2 - num4);
+    res2 -= ge::vec2(num3, num4);
 
-    u -= v;
+    ge::vec3 res3(num1, num2, num3);
+    ge::vec3 exp3(num1 - num4, num2 - num1, num3 - num2);
+    res3 -= ge::vec3(num4, num1, num2);
 
-    CHECK( u == ge::vec<2>(num1 - num3, num2 - num4) );
+    ge::vec4 res4(num1, num3, num3, num4);
+    ge::vec4 exp4(num1 - num2, num3 - num4, num3 - num2, num4 - num1);
+    res4 -= ge::vec4(num2, num4, num2, num1);
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_multiplication" ) {
-    CHECK( num1 * ge::vec<2>(num2,  num3) == ge::vec<2>(num1 * num2, num1 * num3) );
+    ge::vec2 res2 = num1 * ge::vec2(num2, num3);
+    ge::vec2 exp2 = ge::vec2(num1 * num2, num1 * num3);
+
+    ge::vec3 res3 = num1 * ge::vec3(num2, num3, num4);
+    ge::vec3 exp3 = ge::vec3(num1 * num2, num1 * num3, num1 * num4);
+
+    ge::vec4 res4 = num1 * ge::vec4(num1, num2, num3, num4);
+    ge::vec4 exp4 = ge::vec4(num1 * num1, num1 * num2, num1 * num3, num1 * num4);
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_multiplication_assignment" ) {
-    ge::vec<2> u(num1, num2);
+    ge::vec2 res2 = ge::vec2(num2, num3);
+    ge::vec2 exp2 = ge::vec2(num1 * num2, num1 * num3);
+    res2 *= num1;
 
-    u *= num3;
+    ge::vec3 res3 = ge::vec3(num2, num3, num4);
+    ge::vec3 exp3 = ge::vec3(num1 * num2, num1 * num3, num1 * num4);
+    res3 *= num1;
 
-    CHECK( u == ge::vec<2>(num3 * num1, num3 * num2) );
+    ge::vec4 res4 = ge::vec4(num1, num2, num3, num4);
+    ge::vec4 exp4 = ge::vec4(num1 * num1, num1 * num2, num1 * num3, num1 * num4);
+    res4 *= num1;
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_division" ) {
-    double inv = 1 / num3;
+    ge::vec2 res2 = ge::vec2(num2, num3) / num1;
+    ge::vec2 exp2 = ge::vec2(num2 / num1, num3 / num1);
 
-    ge::vec<2> u = ge::vec<2>(num1, num2) / num3;
-    ge::vec<2> v(num1 * inv, num2 * inv);
+    ge::vec3 res3 = ge::vec3(num2, num3, num4) / num1;
+    ge::vec3 exp3 = ge::vec3(num2 / num1, num3 / num1, num4 / num1);
 
-    float err = std::abs(std::abs(u[0]) - std::abs(v[0])) / std::abs(v[0]);
-    CHECK( err < 0.01 );
+    ge::vec4 res4 = ge::vec4(num1, num2, num3, num4) / num1;
+    ge::vec4 exp4 = ge::vec4(num1 / num1, num2 / num1, num3 / num1, num4 / num1);
 
-    err = std::abs(std::abs(u[1]) - std::abs(v[1])) / std::abs(v[1]);
-    CHECK( err < 0.01 );
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_division_assignment" ) {
-    ge::vec<2> u(num1, num2);
-    double inv = 1 / num3;
+    ge::vec2 res2 = ge::vec2(num2, num3);
+    ge::vec2 exp2 = ge::vec2(num2 / num1, num3 / num1);
+    res2 /= num1;
 
-    u /= num3;
-    ge::vec<2> v(num1 * inv, num2 * inv);
+    ge::vec3 res3 = ge::vec3(num2, num3, num4);
+    ge::vec3 exp3 = ge::vec3(num2 / num1, num3 / num1, num4 / num1);
+    res3 /= num1;
 
-    float err = std::abs(std::abs(u[0]) - std::abs(v[0])) / std::abs(v[0]);
-    CHECK( err < 0.01 );
+    ge::vec4 res4 = ge::vec4(num1, num2, num3, num4);
+    ge::vec4 exp4 = ge::vec4(num1 / num1, num2 / num1, num3 / num1, num4 / num1);
+    res4 /= num1;
 
-    err = std::abs(std::abs(u[1]) - std::abs(v[1])) / std::abs(v[1]);
-    CHECK( err < 0.01 );
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_product" ) {
-    float res = ge::vec<2>(num1, num2) * ge::vec<2>(num3, num4);
-    float expected = num1 * num3 + num2 * num4;
+    float res2 = ge::vec2(num1, num2) * ge::vec2(num3, num4);
+    float exp2 = num1 * num3 + num2 * num4;
 
-    float float_error = std::abs(res - expected) / std::abs(expected);
+    float res3 = ge::vec3(num1, num2, num3) * ge::vec3(num4, num1, num2);
+    float exp3 = num1 * num4 + num2 * num1 + num3 * num2;
 
-    CHECK( float_error < 0.01);
+    float res4 = ge::vec4(num1, num3, num3, num4) * ge::vec4(num2, num4, num2, num1);
+    float exp4 = num1 * num2 + num3 * num4 + num3 * num2 + num4 * num1;
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "vector_product" ) {
-    ge::vec<3> u(num1, num2, num3);
-    ge::vec<3> v(num4, num1, num2);
-    ge::vec<3> w(num2 * num2 - num3 * num1, num3 * num4 - num1 * num2, num1 * num1 - num2 * num4);
+    ge::vec3 u(num1, num2, num3);
+    ge::vec3 v(num4, num1, num2);
 
-    CHECK( u.cross(v) == w );
+    ge::vec3 res = u.cross(v);
+    ge::vec3 exp(num2 * num2 - num3 * num1, num3 * num4 - num1 * num2, num1 * num1 - num2 * num4);
+
+    float err = tests::error(res, exp);
+    CHECK( err <= tests::g_tolerance );
   }
 
   SECTION( "comparison_operators" ) {
-    ge::vec<2> u(1, 1);
-    ge::vec<2> v(2, 2);
+    while (num1 == num2)
+      num2 = random();
 
-    CHECK( u == u );
+    float smaller = num1 < num2 ? num1 : num2;
+    float larger = num1 < num2 ? num2 : num1;
+
+    ge::vec4 u(smaller), v(larger);
+
+    CHECK( u.xy() == ge::vec2(smaller) );
+    CHECK( u.xyz() == ge::vec3(smaller) );
+    CHECK( u == ge::vec4(smaller) );
+
+    CHECK( u.xy() != v.xy() );
+    CHECK( u.xyz() != v.xyz() );
+    CHECK( u != v );
+
+    CHECK( u.xy() < v.xy() );
+    CHECK( u.xyz() < v.xyz() );
     CHECK( u < v );
-    CHECK( u <= u );
+
+    CHECK( u.xy() <= ge::vec2(smaller) );
+    CHECK( u.xy() <= v.xy() );
+    CHECK( u.xyz() <= ge::vec3(smaller) );
+    CHECK( u.xyz() <= v.xyz());
+    CHECK( u <= ge::vec4(smaller) );
+    CHECK( u <= v);
+
+    CHECK( v.xy() > u.xy() );
+    CHECK( v.xyz() > u.xyz());
     CHECK( v > u );
-    CHECK( v>= v );
-  }
 
-  SECTION( "zero" ) {
-    CHECK( ge::vec<2>::zero() == ge::vec<2>(0) );
-  }
-
-  SECTION( "index_access" ) {
-    ge::vec<4> u(num1, num2, num3, num4);
-
-    CHECK( u[0] == num1 );
-    CHECK( u[1] == num2 );
-    CHECK( u[2] == num3 );
-    CHECK( u[3] == num4 );
+    CHECK( v.xy() >= ge::vec2(larger) );
+    CHECK( v.xy() >= u.xy() );
+    CHECK( v.xyz() >= ge::vec3(larger) );
+    CHECK( v.xyz() >= u.xyz() );
+    CHECK( v >= ge::vec4(larger) );
+    CHECK( v >= u );
   }
 }
 
@@ -126,290 +218,691 @@ TEST_CASE( "mat", "[unit][linalg]" ) {
   float num1 = random();
   float num2 = random();
   float num3 = random();
+  float num4 = random();
 
   SECTION( "add" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 p2(
+      ge::vec2(num1, num3),
+      ge::vec2(num3, num4)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
+    ge::mat2 q2(
+      ge::vec2(num2, num4),
+      ge::vec2(num2, num1)
     );
 
-    ge::mat<2> r(
-      ge::vec<2>(num1 + num2, num2 + num3),
-      ge::vec<2>(num3 + num1, num1 + num2)
+    ge::mat2 exp2 = ge::mat2(
+      ge::vec2(num1 + num2, num3 + num4),
+      ge::vec2(num3 + num2, num4 + num1)
     );
 
-    CHECK( p + q == r );
+    ge::mat3 p3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+
+    ge::mat3 q3(
+      ge::vec3(num2, num3, num4),
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2)
+    );
+
+    ge::mat3 exp3 = ge::mat3(
+      ge::vec3(num1 + num2, num2 + num3, num3 + num4),
+      ge::vec3(num4 + num1, num1 + num2, num2 + num3),
+      ge::vec3(num3 + num4, num4 + num1, num1 + num2)
+    );
+
+    ge::mat4 p4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num2, num1),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    ge::mat4 q4(
+      ge::vec4(num4, num3, num2, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num1, num2, num3, num4)
+    );
+
+    ge::mat4 exp4(
+      ge::vec4(num1 + num4, num2 + num3, num3 + num2, num4 + num1),
+      ge::vec4(num2 + num3, num3 + num4, num4 + num1, num1 + num2),
+      ge::vec4(num3 + num2, num4 + num3, num2 + num4, num1 + num1),
+      ge::vec4(num4 + num1, num1 + num2, num2 + num3, num3 + num4)
+    );
+
+    CHECK( tests::error(p2 + q2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(p3 + q3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(p4 + q4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "add_assignment" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2(
+      ge::vec2(num1, num3),
+      ge::vec2(num3, num4)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
+    ge::mat2 q2(
+      ge::vec2(num2, num4),
+      ge::vec2(num2, num1)
     );
 
-    ge::mat<2> r(
-      ge::vec<2>(num1 + num2, num2 + num3),
-      ge::vec<2>(num3 + num1, num1 + num2)
+    ge::mat2 exp2 = ge::mat2(
+      ge::vec2(num1 + num2, num3 + num4),
+      ge::vec2(num3 + num2, num4 + num1)
     );
 
-    p += q;
+    ge::mat3 res3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
 
-    CHECK( p == r );
+    ge::mat3 q3(
+      ge::vec3(num2, num3, num4),
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2)
+    );
+
+    ge::mat3 exp3 = ge::mat3(
+      ge::vec3(num1 + num2, num2 + num3, num3 + num4),
+      ge::vec3(num4 + num1, num1 + num2, num2 + num3),
+      ge::vec3(num3 + num4, num4 + num1, num1 + num2)
+    );
+
+    ge::mat4 res4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num2, num1),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    ge::mat4 q4(
+      ge::vec4(num4, num3, num2, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num1, num2, num3, num4)
+    );
+
+    ge::mat4 exp4(
+      ge::vec4(num1 + num4, num2 + num3, num3 + num2, num4 + num1),
+      ge::vec4(num2 + num3, num3 + num4, num4 + num1, num1 + num2),
+      ge::vec4(num3 + num2, num4 + num3, num2 + num4, num1 + num1),
+      ge::vec4(num4 + num1, num1 + num2, num2 + num3, num3 + num4)
+    );
+
+    res2 += q2;
+    res3 += q3;
+    res4 += q4;
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "subtract" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 p2(
+      ge::vec2(num1, num3),
+      ge::vec2(num3, num4)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
+    ge::mat2 q2(
+      ge::vec2(num2, num4),
+      ge::vec2(num2, num1)
     );
 
-    ge::mat<2> r(
-      ge::vec<2>(num1 - num2, num2 - num3),
-      ge::vec<2>(num3 - num1, num1 - num2)
+    ge::mat2 exp2 = ge::mat2(
+      ge::vec2(num1 - num2, num3 - num4),
+      ge::vec2(num3 - num2, num4 - num1)
     );
 
-    CHECK( p - q == r );
+    ge::mat3 p3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+
+    ge::mat3 q3(
+      ge::vec3(num2, num3, num4),
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2)
+    );
+
+    ge::mat3 exp3 = ge::mat3(
+      ge::vec3(num1 - num2, num2 - num3, num3 - num4),
+      ge::vec3(num4 - num1, num1 - num2, num2 - num3),
+      ge::vec3(num3 - num4, num4 - num1, num1 - num2)
+    );
+
+    ge::mat4 p4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    ge::mat4 q4(
+      ge::vec4(num4, num3, num2, num1),
+      ge::vec4(num3, num2, num1, num4),
+      ge::vec4(num2, num1, num4, num3),
+      ge::vec4(num1, num4, num3, num2)
+    );
+
+    ge::mat4 exp4(
+      ge::vec4(num1 - num4, num2 - num3, num3 - num2, num4 - num1),
+      ge::vec4(num2 - num3, num3 - num2, num4 - num1, num1 - num4),
+      ge::vec4(num3 - num2, num4 - num1, num1 - num4, num2 - num3),
+      ge::vec4(num4 - num1, num1 - num4, num2 - num3, num3 - num2)
+    );
+
+    CHECK( tests::error(p2 - q2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(p3 - q3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(p4 - q4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "subtract_assignment" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2(
+      ge::vec2(num1, num3),
+      ge::vec2(num3, num4)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
+    ge::mat2 q2(
+      ge::vec2(num2, num4),
+      ge::vec2(num2, num1)
     );
 
-    ge::mat<2> r(
-      ge::vec<2>(num1 - num2, num2 - num3),
-      ge::vec<2>(num3 - num1, num1 - num2)
+    ge::mat2 exp2 = ge::mat2(
+      ge::vec2(num1 - num2, num3 - num4),
+      ge::vec2(num3 - num2, num4 - num1)
     );
 
-    p -= q;
+    ge::mat3 res3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
 
-    CHECK( p == r );
+    ge::mat3 q3(
+      ge::vec3(num2, num3, num4),
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2)
+    );
+
+    ge::mat3 exp3 = ge::mat3(
+      ge::vec3(num1 - num2, num2 - num3, num3 - num4),
+      ge::vec3(num4 - num1, num1 - num2, num2 - num3),
+      ge::vec3(num3 - num4, num4 - num1, num1 - num2)
+    );
+
+    ge::mat4 res4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num2, num1),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    ge::mat4 q4(
+      ge::vec4(num4, num3, num2, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num1, num2, num3, num4)
+    );
+
+    ge::mat4 exp4(
+      ge::vec4(num1 - num4, num2 - num3, num3 - num2, num4 - num1),
+      ge::vec4(num2 - num3, num3 - num4, num4 - num1, num1 - num2),
+      ge::vec4(num3 - num2, num4 - num3, num2 - num4, num1 - num1),
+      ge::vec4(num4 - num1, num1 - num2, num2 - num3, num3 - num4)
+    );
+
+    res2 -= q2;
+    res3 -= q3;
+    res4 -= q4;
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "matrix_multiplication" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
-    );
+    ge::mat2 m2(num1);
+    ge::mat2 exp2(2 * num1 * num1);
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
-    );
+    ge::mat3 m3(num2);
+    ge::mat3 exp3(3 * num2 * num2);
 
-    ge::mat<2> r(
-      ge::vec<2>(2 * num1 * num2, num1 * num3 + num2 * num2),
-      ge::vec<2>(num3 * num2 + num1 * num1, num3 * num3 + num1 * num2)
-    );
+    ge::mat4 m4(num3);
+    ge::mat4 exp4(4 * num3 * num3);
 
-    ge::mat<2> m = p * q;
-
-    for (unsigned int i = 0; i < 2; ++i) {
-      for (unsigned int j = 0; j < 2; ++j) {
-        float err = std::abs(std::abs(m[i][j]) - std::abs(r[i][j])) / std::abs(r[i][j]);
-        CHECK( err < 0.01 );
-      }
-    }
+    CHECK( tests::error(m2 * m2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(m3 * m3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(m4 * m4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "matrix_multiplication_assignment" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
-    );
+    ge::mat2 res2(num1);
+    ge::mat2 exp2(2 * num1 * num1);
+    res2 *= res2;
 
-    ge::mat<2> q(
-      ge::vec<2>(num2, num3),
-      ge::vec<2>(num1, num2)
-    );
+    ge::mat3 res3(num2);
+    ge::mat3 exp3(3 * num2 * num2);
+    res3 *= res3;
 
-    ge::mat<2> r(
-      ge::vec<2>(2 * num1 * num2, num1 * num3 + num2 * num2),
-      ge::vec<2>(num3 * num2 + num1 * num1, num3 * num3 + num1 * num2)
-    );
+    ge::mat4 res4(num3);
+    ge::mat4 exp4(4 * num3 * num3);
+    res4 *= res4;
 
-    p *= q;
-
-    for (unsigned int i = 0; i < 2; ++i) {
-      for (unsigned int j = 0; j < 2; ++j) {
-        float err = std::abs(std::abs(p[i][j]) - std::abs(r[i][j])) / std::abs(r[i][j]);
-        CHECK( err < 0.01 );
-      }
-    }
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "vector_multiplication" ) {
-    ge::mat<2> m(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 m2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    );
+    ge::vec2 v2(num1, num2);
+    ge::vec2 exp2(num1 * num1 + num2 * num2, num3 * num1 + num4 * num2);
+
+    ge::mat3 m3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+    ge::vec3 v3(num1, num2, num3);
+    ge::vec3 exp3(
+      num1 * num1 + num2 * num2 + num3 * num3,
+      num4 * num1 + num1 * num2 + num2 * num3,
+      num3 * num1 + num4 * num2 + num1 * num3
     );
 
-    ge::vec<2> v(num2, num3);
-    ge::vec<2> w = m * v;
+    ge::mat4 m4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+    ge::vec4 v4(num1, num2, num3, num4);
+    ge::vec4 exp4(
+      num1 * num1 + num2 * num2 + num3 * num3 + num4 * num4,
+      num2 * num1 + num3 * num2 + num4 * num3 + num1 * num4,
+      num3 * num1 + num4 * num2 + num1 * num3 + num2 * num4,
+      num4 * num1 + num1 * num2 + num2 * num3 + num3 * num4
+    );
 
-    ge::vec<2> r(num1 * num2 + num2 * num3, num3 * num2 + num1 * num3);
-
-    for (unsigned int i = 0; i < 2; ++i) {
-      float err = std::abs(std::abs(w[i]) - std::abs(r[i])) / std::abs(r[i]);
-      CHECK( err < 0.01 );
-    }
+    CHECK( tests::error(m2 * v2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(m3 * v3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(m4 * v4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_mult" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2 = ge::mat2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    ) * num1;
+
+    ge::mat2 exp2(
+      ge::vec2(num1 * num1, num2 * num1),
+      ge::vec2(num3 * num1, num4 * num1)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2 * num1, num2 * num2),
-      ge::vec<2>(num2 * num3, num2 * num1)
+    ge::mat3 res3 = ge::mat3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    ) * num1;
+
+    ge::mat3 exp3(
+      ge::vec3(num1 * num1, num2 * num1, num3 * num1),
+      ge::vec3(num4 * num1, num1 * num1, num2 * num1),
+      ge::vec3(num3 * num1, num4 * num1, num1 * num1)
     );
 
-    CHECK( num2 * p == q );
+    ge::mat4 res4 = ge::mat4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    ) * num1;
+
+    ge::mat4 exp4(
+      ge::vec4(num1 * num1, num2 * num1, num3 * num1, num4 * num1),
+      ge::vec4(num2 * num1, num3 * num1, num4 * num1, num1 * num1),
+      ge::vec4(num3 * num1, num4 * num1, num1 * num1, num2 * num1),
+      ge::vec4(num4 * num1, num1 * num1, num2 * num1, num3 * num1)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_mult_assignment" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    );
+    res2 *= num1;
+
+    ge::mat2 exp2(
+      ge::vec2(num1 * num1, num2 * num1),
+      ge::vec2(num3 * num1, num4 * num1)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num2 * num1, num2 * num2),
-      ge::vec<2>(num2 * num3, num2 * num1)
+    ge::mat3 res3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+    res3 *= num1;
+
+    ge::mat3 exp3(
+      ge::vec3(num1 * num1, num2 * num1, num3 * num1),
+      ge::vec3(num4 * num1, num1 * num1, num2 * num1),
+      ge::vec3(num3 * num1, num4 * num1, num1 * num1)
     );
 
-    p *= num2;
+    ge::mat4 res4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+    res4 *= num1;
 
-    CHECK( p == q );
+    ge::mat4 exp4(
+      ge::vec4(num1 * num1, num2 * num1, num3 * num1, num4 * num1),
+      ge::vec4(num2 * num1, num3 * num1, num4 * num1, num1 * num1),
+      ge::vec4(num3 * num1, num4 * num1, num1 * num1, num2 * num1),
+      ge::vec4(num4 * num1, num1 * num1, num2 * num1, num3 * num1)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_div" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2 = ge::mat2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    ) / num1;
+
+    ge::mat2 exp2(
+      ge::vec2(num1 / num1, num2 / num1),
+      ge::vec2(num3 / num1, num4 / num1)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num1 / num2, num2 / num2),
-      ge::vec<2>(num3 / num2, num1 / num2)
+    ge::mat3 res3 = ge::mat3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    ) / num1;
+
+    ge::mat3 exp3(
+      ge::vec3(num1 / num1, num2 / num1, num3 / num1),
+      ge::vec3(num4 / num1, num1 / num1, num2 / num1),
+      ge::vec3(num3 / num1, num4 / num1, num1 / num1)
     );
 
-    ge::mat<2> r = p / num2;
+    ge::mat4 res4 = ge::mat4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    ) / num1;
 
-    for (unsigned int i = 0; i < 2; ++i) {
-      for (unsigned int j = 0; j < 2; ++j) {
-        float err = std::abs(std::abs(r[i][j]) - std::abs(q[i][j])) / std::abs(q[i][j]);
-        CHECK( err < 0.01 );
-      }
-    }
+    ge::mat4 exp4(
+      ge::vec4(num1 / num1, num2 / num1, num3 / num1, num4 / num1),
+      ge::vec4(num2 / num1, num3 / num1, num4 / num1, num1 / num1),
+      ge::vec4(num3 / num1, num4 / num1, num1 / num1, num2 / num1),
+      ge::vec4(num4 / num1, num1 / num1, num2 / num1, num3 / num1)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "scalar_div_assignment" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    );
+    res2 /= num1;
+
+    ge::mat2 exp2(
+      ge::vec2(num1 / num1, num2 / num1),
+      ge::vec2(num3 / num1, num4 / num1)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num1 / num2, num2 / num2),
-      ge::vec<2>(num3 / num2, num1 / num2)
+    ge::mat3 res3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+    res3 /= num1;
+
+    ge::mat3 exp3(
+      ge::vec3(num1 / num1, num2 / num1, num3 / num1),
+      ge::vec3(num4 / num1, num1 / num1, num2 / num1),
+      ge::vec3(num3 / num1, num4 / num1, num1 / num1)
     );
 
-    p /= num2;
+    ge::mat4 res4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+    res4 /= num1;
 
-    CHECK( p == q );
+    ge::mat4 exp4(
+      ge::vec4(num1 / num1, num2 / num1, num3 / num1, num4 / num1),
+      ge::vec4(num2 / num1, num3 / num1, num4 / num1, num1 / num1),
+      ge::vec4(num3 / num1, num4 / num1, num1 / num1, num2 / num1),
+      ge::vec4(num4 / num1, num1 / num1, num2 / num1, num3 / num1)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 
   SECTION( "comparison_operators" ) {
-    ge::mat<2> p(
-      ge::vec<2>(1, 1),
-      ge::vec<2>(1, 1)
-    );
+    while (num1 == num2)
+      num2 = random();
 
-    ge::mat<2> q(
-      ge::vec<2>(2, 2),
-      ge::vec<2>(2, 2)
-    );
+    float smaller = num1 < num2 ? num1 : num2;
+    float larger = num1 < num2 ? num2 : num1;
 
-    CHECK( p == p );
+    ge::mat4 p(smaller), q(larger);
+
+    CHECK( ge::mat2(p) == ge::mat2(smaller) );
+    CHECK( ge::mat3(p) == ge::mat3(smaller) );
+    CHECK( p == ge::mat4(smaller) );
+
+    CHECK( ge::mat2(p) != ge::mat2(q) );
+    CHECK( ge::mat3(p) != ge::mat3(q) );
+    CHECK( p != q );
+
+    CHECK( ge::mat2(p) < ge::mat2(q) );
+    CHECK( ge::mat3(p) < ge::mat3(q) );
     CHECK( p < q );
-    CHECK( p <= p );
+
+    CHECK( ge::mat2(p) <= ge::mat2(smaller) );
+    CHECK( ge::mat2(p) <= ge::mat2(q) );
+    CHECK( ge::mat3(p) <= ge::mat3(smaller) );
+    CHECK( ge::mat3(p) <= ge::mat3(q) );
+    CHECK( p <= ge::mat4(smaller) );
+    CHECK( p <= q );
+
+    CHECK( ge::mat2(q) > ge::mat2(p) );
+    CHECK( ge::mat3(q) > ge::mat3(p) );
     CHECK( q > p );
-    CHECK( q >= q );
+
+    CHECK( ge::mat2(q) >= ge::mat2(larger) );
+    CHECK( ge::mat2(q) >= ge::mat2(p) );
+    CHECK( ge::mat3(q) >= ge::mat3(larger) );
+    CHECK( ge::mat3(q) >= ge::mat3(p) );
+    CHECK( q >= ge::mat4(larger) );
+    CHECK( q >= p );
   }
 
   SECTION( "identity" ) {
-    CHECK( ge::mat<2>::identity()[0][0] == 1.0f );
-    CHECK( ge::mat<2>::identity()[1][1] == 1.0f );
+    ge::mat2 m2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    );
+
+    ge::mat3 m3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    );
+
+    ge::mat4 m4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    CHECK( tests::error(ge::mat2<>::identity() * m2, m2) <= tests::g_tolerance );
+    CHECK( tests::error(ge::mat3::identity() * m3, m3) <= tests::g_tolerance );
+    CHECK( tests::error(ge::mat4::identity() * m4, m4) <= tests::g_tolerance );
   }
 
   SECTION( "rotate" ) {
-    ge::vec<4> x(1, 0, 0, 1);
-    ge::vec<4> y(0, 1, 0, 1);
-    ge::mat<4> r = ge::mat<4>::rotate(ge::vec<3>(0, 0, std::numbers::pi / 2));
+    ge::vec3 x(1.0, 0.0, 0.0);
+    ge::vec3 y(0.0, 1.0, 0.0);
+    ge::vec3 z(0.0, 0.0, 1.0);
 
-    x = r * x;
-    y = r * y;
+    ge::mat2 rot2D = ge::mat2<>::rotation(std::numbers::pi / 2);
+    ge::mat3 xRot = ge::mat3::rotation(ge::vec3(std::numbers::pi / 2, 0.0, 0.0));
+    ge::mat3 yRot = ge::mat3::rotation(ge::vec3(0.0, std::numbers::pi / 2, 0.0));
+    ge::mat3 zRot = ge::mat3::rotation(ge::vec3(0.0, 0.0, std::numbers::pi / 2));
 
-    float errX = std::abs(std::abs(x[1]) - 1);
-    float errY = std::abs(std::abs(y[0]) - 1);
+    ge::mat4 homoRot = ge::mat4::rotation(ge::vec3(0.0, 0.0, std::numbers::pi / 2));
 
-    CHECK( errX < 0.01 );
-    CHECK( errY < 0.01 );
-  }
-
-  SECTION( "translate" ) {
-    ge::vec<4> r = ge::vec<4>(0, 0, 0, 1);
-    ge::mat<4> t = ge::mat<4>::translate(ge::vec<3>(1, 1, 1));
-
-    r = t * r;
-
-    CHECK( r == ge::vec<4>(1, 1, 1, 1) );
+    CHECK( tests::error(rot2D * x.xy(), y.xy()) <= tests::g_tolerance );
+    CHECK( tests::error(xRot * y, z) <= tests::g_tolerance );
+    CHECK( tests::error(yRot * x, -z) <= tests::g_tolerance );
+    CHECK( tests::error(zRot * x, y) <= tests::g_tolerance );
+    CHECK( tests::error(homoRot * ge::vec4(x, 1.0), ge::vec4(y, 1.0)) <= tests::g_tolerance );
   }
 
   SECTION( "scale" ) {
-    ge::vec<4> r = ge::vec<4>(1, 1, 1, 1);
-    ge::mat<4> s = ge::mat<4>::scale(ge::vec<3>(1, 2, 3));
+    ge::vec4 v(1.0);
 
-    r = s * r;
+    ge::mat2 scale2D = ge::mat2<>::scale(ge::vec2(num1, num2));
+    ge::mat3 scale3D = ge::mat3::scale(ge::vec3(num1, num2, num3));
+    ge::mat4 scaleHomo = ge::mat4::scale(ge::vec3(num1, num2, num3));
 
-    CHECK( r == ge::vec<4>(1, 2, 3, 1) );
+    CHECK( tests::error(scale2D * v.xy(), ge::vec2(num1, num2)) <= tests::g_tolerance );
+    CHECK( tests::error(scale3D * v.xyz(), ge::vec3(num1, num2, num3)) <= tests::g_tolerance );
+    CHECK( tests::error(scaleHomo * v, ge::vec4(num1, num2, num3, 1.0)) <= tests::g_tolerance );
+  }
+
+  SECTION( "translate" ) {
+    ge::vec4 v(ge::vec3(0.0), 1.0);
+    ge::mat4 t = ge::mat4::translation(ge::vec3(1.0, 1.0, 1.0));
+
+    CHECK( tests::error(t * v, ge::vec4(1.0)) <= tests::g_tolerance );
+  }
+
+  SECTION( "determinant" ) {
+    CHECK( tests::error(ge::mat2(1.0).determinant(), 0.0) <= tests::g_tolerance );
+    CHECK( tests::error(ge::mat3(1.0).determinant(), 0.0) <= tests::g_tolerance );
+    CHECK( tests::error(ge::mat4(1.0).determinant(), 0.0) <= tests::g_tolerance );
   }
 
   SECTION( "transpose" ) {
-    ge::mat<2> p(
-      ge::vec<2>(num1, num2),
-      ge::vec<2>(num3, num1)
+    ge::mat2 res2 = ge::mat2(
+      ge::vec2(num1, num2),
+      ge::vec2(num3, num4)
+    ).transpose();
+
+    ge::mat2 exp2(
+      ge::vec2(num1, num3),
+      ge::vec2(num2, num4)
     );
 
-    ge::mat<2> q(
-      ge::vec<2>(num1, num3),
-      ge::vec<2>(num2, num1)
+    ge::mat3 res3 = ge::mat3(
+      ge::vec3(num1, num2, num3),
+      ge::vec3(num4, num1, num2),
+      ge::vec3(num3, num4, num1)
+    ).transpose();
+
+    ge::mat3 exp3(
+      ge::vec3(num1, num4, num3),
+      ge::vec3(num2, num1, num4),
+      ge::vec3(num3, num2, num1)
     );
 
-    CHECK( p.transpose() == q );
+    ge::mat4 exp4 = ge::mat4(
+      ge::vec4(num1, num2, num3, num4),
+      ge::vec4(num2, num3, num4, num1),
+      ge::vec4(num3, num4, num1, num2),
+      ge::vec4(num4, num1, num2, num3)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(exp4.transpose(), exp4) <= tests::g_tolerance);
+  }
+
+  SECTION( "inverse" ) {
+    CHECK( ge::mat2(1.0).inverse() == std::nullopt );
+    CHECK( ge::mat3(1.0).inverse() == std::nullopt );
+    CHECK( ge::mat4(1.0).inverse() == std::nullopt );
+    CHECK( ge::mat2<>::identity().inverse() == ge::mat2<>::identity() );
+    CHECK( ge::mat3::identity().inverse() == ge::mat3::identity() );
+    CHECK( ge::mat4::identity().inverse() == ge::mat4::identity() );
+
+    ge::mat2 res2 = ge::mat2(
+      ge::vec2(1.0, 1.0),
+      ge::vec2(-1.0, 1.0)
+    ).inverse().value();
+
+    ge::mat2 exp2(
+      ge::vec2(0.5, -0.5),
+      ge::vec2(0.5, 0.5)
+    );
+
+    ge::mat3 res3 = ge::mat3(
+      ge::vec3(1.0, 2.0, 2.0),
+      ge::vec3(-1.0, 1.0, 2.0),
+      ge::vec3(-1.0, -1.0, 1.0)
+    ).inverse().value();
+
+    ge::mat3 exp3(
+      ge::vec3(0.6, -0.8, 0.4),
+      ge::vec3(-0.2, 0.6, -0.8),
+      ge::vec3(0.4, -0.2, 0.6)
+    );
+
+    ge::mat4 res4 = ge::mat4(
+      ge::vec4(1.0),
+      ge::vec4(-1.0, 1.0, 1.0, 1.0),
+      ge::vec4(ge::vec2(-1.0), 1.0, 1.0),
+      ge::vec4(ge::vec3(-1.0), 1.0)
+    ).inverse().value();
+
+    ge::mat4 exp4(
+      ge::vec4(0.5, -0.5, 0.0, 0.0),
+      ge::vec4(0.0, 0.5, -0.5, 0.0),
+      ge::vec4(0.0, 0.0, 0.5, -0.5),
+      ge::vec4(0.5, 0.0, 0.0, 0.5)
+    );
+
+    CHECK( tests::error(res2, exp2) <= tests::g_tolerance );
+    CHECK( tests::error(res3, exp3) <= tests::g_tolerance );
+    CHECK( tests::error(res4, exp4) <= tests::g_tolerance );
   }
 }
