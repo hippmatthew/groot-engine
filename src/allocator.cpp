@@ -99,6 +99,32 @@ Allocator::SemaphoreOutput Allocator::semaphores(const Engine& engine, unsigned 
   return std::move(semaphores);
 }
 
+Allocator::DescriptorOutput Allocator::descriptorPool(const Engine& engine, const vk::raii::DescriptorSetLayout& setLayout) {
+  vk::DescriptorPoolSize storagePool{
+    .type             = vk::DescriptorType::eStorageBuffer,
+    .descriptorCount  = engine.m_settings.buffer_mode
+  };
+
+  vk::raii::DescriptorPool pool = engine.m_context.device().createDescriptorPool(vk::DescriptorPoolCreateInfo{
+    .flags          = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+    .maxSets        = engine.m_settings.buffer_mode,
+    .poolSizeCount  = 1,
+    .pPoolSizes     = &storagePool
+  });
+
+  std::vector<vk::DescriptorSetLayout> layouts;
+  for (unsigned int i = 0; i < engine.m_settings.buffer_mode; ++i)
+    layouts.emplace_back(*setLayout);
+
+  vk::raii::DescriptorSets sets(engine.m_context.device(), vk::DescriptorSetAllocateInfo{
+    .descriptorPool     = pool,
+    .descriptorSetCount = engine.m_settings.buffer_mode,
+    .pSetLayouts        = layouts.data()
+  });
+
+  return { std::move(pool), std::move(sets) };
+}
+
 vk::raii::DeviceMemory Allocator::allocate(
   const Engine& engine,
   const unsigned int& size,

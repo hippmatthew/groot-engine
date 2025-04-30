@@ -60,7 +60,7 @@ class Engine {
 
     void add_material(std::string, const MaterialManager::Builder&);
     void add_material(std::string, MaterialManager::Builder&&);
-    void add_object(std::string, std::string);
+    Transform& add_object(std::string, std::string, const Transform& t = Transform());
     void run();
 
     template <typename Func>
@@ -71,6 +71,7 @@ class Engine {
         pollEvents();
         code();
         m_renderer.render(*this);
+        m_materials.updateTransforms(m_renderer.frameIndex(), m_objects.transforms());
       }
 
       m_context.device().waitIdle();

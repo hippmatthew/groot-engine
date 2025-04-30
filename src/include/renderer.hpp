@@ -22,6 +22,8 @@ class Renderer {
     Renderer& operator = (Renderer&) = delete;
     Renderer& operator = (Renderer&&) = delete;
 
+    const unsigned int& frameIndex() const;
+
     void initialize(Engine&);
     void render(const Engine&);
 
@@ -40,6 +42,8 @@ class Renderer {
 
   private:
     unsigned int m_frameIndex = 0;
+    mat4 m_view = mat4::view(vec3(0.0f, 0.0f, -2.0f), vec3(0.0f), vec3(0.0f, -1.0f, 0.0f));
+    mat4 m_projection = mat4::identity();
 
     vk::raii::SwapchainKHR m_swapchain = nullptr;
     std::vector<vk::Image> m_images;
@@ -54,8 +58,6 @@ class Renderer {
     std::vector<vk::raii::Fence> m_flightFences;
     std::vector<vk::raii::Semaphore> m_renderSemaphores;
     std::vector<vk::raii::Semaphore> m_imageSemaphores;
-
-    PushConstants m_constants;
 };
 
 } // namespace ge

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/include/transform.hpp"
 #include "src/include/vertex.hpp"
 
 #include <vulkan/vulkan_raii.hpp>
@@ -10,6 +11,8 @@
 
 namespace ge {
 
+using transform = Transform&;
+
 class Engine;
 
 class ObjectManager {
@@ -17,7 +20,8 @@ class ObjectManager {
     const vk::raii::Buffer&,
     const vk::raii::Buffer&,
     const vk::raii::Buffer&,
-    const unsigned int
+    const unsigned int,
+    const unsigned int&
   >;
 
   private:
@@ -34,6 +38,8 @@ class ObjectManager {
       std::vector<unsigned int> indices;
       unsigned int bufferIndex = 0;
       std::vector<IndirectCommand> commands;
+      std::vector<Transform> transforms;
+      unsigned int transformIndex = 0;
     };
 
   public:
@@ -51,7 +57,8 @@ class ObjectManager {
     bool hasObjects(std::string) const;
     unsigned int commandSize() const;
 
-    void add(const std::string&, const std::string&);
+    Transform& add(const std::string&, const std::string&, const Transform&);
+    std::vector<mat4> transforms();
     void load(const Engine&);
 
   private:

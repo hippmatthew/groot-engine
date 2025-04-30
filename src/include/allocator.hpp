@@ -30,6 +30,11 @@ class Allocator {
   using FenceOutput = std::vector<vk::raii::Fence>;
   using SemaphoreOutput = std::vector<vk::raii::Semaphore>;
 
+  using DescriptorOutput = std::pair<
+    vk::raii::DescriptorPool,
+    vk::raii::DescriptorSets
+  >;
+
   public:
     Allocator() = delete;
     Allocator(Allocator&) = delete;
@@ -45,6 +50,7 @@ class Allocator {
     static DepthOutput depthResources(const Engine&);
     static FenceOutput fences(const Engine&, unsigned int, bool signaled = false);
     static SemaphoreOutput semaphores(const Engine&, unsigned int);
+    static DescriptorOutput descriptorPool(const Engine&, const vk::raii::DescriptorSetLayout&);
 
   private:
     static vk::raii::DeviceMemory allocate(

@@ -11,6 +11,7 @@ set(GROOT_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/objects.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/parsers.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/transform.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/vkcontext.hpp
 )
@@ -23,6 +24,7 @@ set(GROOT_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/objects.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/parsers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/renderer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/transform.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vertex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vkcontext.cpp
 )

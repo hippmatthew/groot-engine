@@ -33,10 +33,10 @@ void Engine::add_material(std::string tag, MaterialManager::Builder&& builder) {
   m_materials.add(tag, std::move(builder));
 }
 
-void Engine::add_object(std::string material, std::string path) {
+Transform& Engine::add_object(std::string material, std::string path, const Transform& transform) {
   if (!m_materials.exists(material))
     throw std::runtime_error("groot-engine: material '" + material + "' does not exist");
-  m_objects.add(material, path);
+  return m_objects.add(material, path, transform);
 }
 
 void Engine::run() {
@@ -117,8 +117,15 @@ void Engine::createCommandPools() {
 }
 
 void Engine::load() {
-  std::future materialThread = std::async(std::launch::async, [this](){ this->m_materials.load(*this); });
-  std::future objectThread = std::async(std::launch::async, [this]() { this->m_objects.load(*this); });
+  std::vector<mat4> transforms = m_objects.transforms();
+
+  std::future materialThread = std::async(std::launch::async,
+    [this, &transforms](){ this->m_materials.load(*this, transforms); }
+  );
+
+  std::future objectThread = std::async(std::launch::async,
+    [this]() { this->m_objects.load(*this); }
+  );
 
   materialThread.get();
   objectThread.get();

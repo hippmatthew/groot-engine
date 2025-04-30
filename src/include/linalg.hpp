@@ -133,6 +133,45 @@ class alignas(16) vec4 {
     float x, y, z, w;
 };
 
+class Quaternion {
+  public:
+    Quaternion() = delete;
+    Quaternion(const Quaternion&) = default;
+    Quaternion(Quaternion&&) = default;
+    Quaternion(float, float, float, float);
+    Quaternion(float, const vec3&);
+    explicit Quaternion(const vec3&);
+
+    ~Quaternion() = default;
+
+    Quaternion& operator=(const Quaternion&) = default;
+    Quaternion& operator=(Quaternion&&) = default;
+    Quaternion& operator+=(const Quaternion&);
+    Quaternion& operator-=(const Quaternion&);
+    Quaternion& operator*=(const Quaternion&);
+    Quaternion& operator*=(float);
+    Quaternion& operator/=(float);
+
+    std::partial_ordering operator<=>(const Quaternion&) const;
+    bool operator==(const Quaternion&) const = default;
+
+    Quaternion operator+(const Quaternion&) const;
+    Quaternion operator-(const Quaternion&) const;
+    Quaternion operator-() const;
+    Quaternion operator*(const Quaternion&) const;
+    Quaternion operator*(float) const;
+    Quaternion operator/(float) const;
+
+    Quaternion conjugate() const;
+
+  private:
+    void normalize();
+
+  public:
+    float real = 0.0f;
+    vec3 imaginary = vec3(0.0f);
+};
+
 template <Layout layout = std430>
 class alignas(layout == std430 ? 8 : 16) mat2 {
   public:

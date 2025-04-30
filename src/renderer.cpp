@@ -6,6 +6,10 @@
 
 namespace ge {
 
+const unsigned int& Renderer::frameIndex() const {
+  return m_frameIndex;
+}
+
 void Renderer::initialize(Engine& engine) {
   checkFormat(engine);
   checkPresentMode(engine);
@@ -23,22 +27,8 @@ void Renderer::initialize(Engine& engine) {
 
   createSyncObjects(engine);
 
-  mat4 view = mat4::view({ 0.0f, 0.0f, -2.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f });
-
-  float ar = static_cast<float>(engine.m_settings.extent.width) / static_cast<float>(engine.m_settings.extent.height);
-  mat4 perspective = mat4::perspective(60.0f * std::numbers::pi / 180.0f, ar, 0.01f, 10000.0f);
-
-  m_constants.camera = perspective * view;
-
-  m_constants.transforms[0] =
-    mat4::translation(vec3(-2.0f, 0.0f, 0.75f)) *
-    mat4::rotation(vec3(0.0f, std::numbers::pi / 8, 0.0f));
-
-  m_constants.transforms[1] = mat4::scale(vec3(0.8f, 0.8f, 1.0f));
-
-  m_constants.transforms[2] =
-    mat4::translation(vec3(2.0f, 0.0f, 0.75f)) *
-    mat4::rotation(vec3(0.0f, -std::numbers::pi / 8, 0.0f));
+  float ar = static_cast<float>(engine.m_settings.extent.width) / engine.m_settings.extent.height;
+  m_projection = mat4::perspective(std::numbers::pi / 3.0f, ar, 0.01f, 10000.0f);
 }
 
 void Renderer::render(const Engine& engine) {
@@ -269,19 +259,36 @@ void Renderer::preDraw(const Engine& engine, const unsigned int& imgIndex) {
 }
 
 void Renderer::draw(const Engine& engine) {
+  EngineData engineData{
+    .view           = m_view,
+    .projection     = m_projection,
+    .frameIndex     = m_frameIndex
+  };
+
+  unsigned int materialIndex = 0;
   for (const auto& [material, pipeline] : engine.m_materials) {
+    engineData.materialIndex = materialIndex++;
     if (!engine.m_objects.hasObjects(material)) continue;
 
     m_renderCmds[m_frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
-    m_renderCmds[m_frameIndex].pushConstants(
+    m_renderCmds[m_frameIndex].bindDescriptorSets(
+      vk::PipelineBindPoint::eGraphics,
       engine.m_materials.layout(),
-      vk::ShaderStageFlagBits::eVertex,
       0,
-      vk::ArrayProxy<const char>(sizeof(PushConstants), reinterpret_cast<const char *>(&m_constants))
+      *engine.m_materials.descriptorSet(m_frameIndex),
+      nullptr
     );
 
-    const auto& [vertexBuffer, indexBuffer, indirectBuffer, commandCount] = engine.m_objects[material];
+    const auto& [vertexBuffer, indexBuffer, indirectBuffer, commandCount, transformIndex] = engine.m_objects[material];
+    engineData.transformIndex = transformIndex;
+
+    m_renderCmds[m_frameIndex].pushConstants(
+      engine.m_materials.layout(),
+      all_stages,
+      0,
+      vk::ArrayProxy<const char>(sizeof(EngineData), reinterpret_cast<const char *>(&engineData))
+    );
 
     m_renderCmds[m_frameIndex].bindVertexBuffers(0, *vertexBuffer, { 0 });
     m_renderCmds[m_frameIndex].bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint32);

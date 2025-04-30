@@ -1,7 +1,8 @@
 #include "src/include/engine.hpp"
-#include "src/include/materials.hpp"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <numbers>
 
 TEST_CASE( "engine", "[unit][engine]" ) {
   ge::Engine engine;
@@ -38,9 +39,18 @@ TEST_CASE( "engine", "[unit][engine]" ) {
       .add_shader(ge::ShaderStage::FragmentShader, "shaders/shader.frag.spv")
     );
 
-    engine.add_object("test", "../tests/dat/quad.obj");
-    engine.add_object("test", "../tests/dat/quad.obj");
-    engine.add_object("test", "../tests/dat/quad.obj");
+
+    ge::transform obj1 = engine.add_object("test", "../tests/dat/quad.obj",
+      ge::Transform(ge::vec3(0.0f), ge::vec3(0.0f), ge::vec3(0.8f, 0.8f, 0.8f))
+    );
+
+    ge::transform obj2 = engine.add_object("test", "../tests/dat/quad.obj",
+      ge::Transform(ge::vec3(-2.0f, 0.0f, 1.0f), ge::vec3(0.0f, std::numbers::pi / 8, 0.0f), ge::vec3(1.0f))
+    );
+
+    ge::transform obj3 = engine.add_object("test", "../tests/dat/quad.obj",
+      ge::Transform(ge::vec3(2.0f, 0.0f, 1.0f), ge::vec3(0.0f, -std::numbers::pi / 8, 0.0f), ge::vec3(1.0f))
+    );
 
     bool success = true;
     try {

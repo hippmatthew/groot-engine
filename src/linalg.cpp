@@ -1,6 +1,7 @@
 #include "src/include/linalg.hpp"
 
 #include <cmath>
+#include <compare>
 #include <stdexcept>
 
 namespace ge {
@@ -347,6 +348,108 @@ vec4 vec4::normalized() const {
   return *this / magnitude();
 }
 
+Quaternion::Quaternion(float w, float x, float y, float z) : real(w), imaginary(vec3(x, y, z)) {
+  normalize();
+}
+
+Quaternion::Quaternion(float w, const vec3& v) : real(w), imaginary(v) {
+  normalize();
+}
+
+Quaternion::Quaternion(const vec3& v) : imaginary(v) {
+  normalize();
+}
+
+Quaternion& Quaternion::operator+=(const Quaternion& rhs) {
+  real += rhs.real;
+  imaginary += rhs.imaginary;
+
+  normalize();
+  return *this;
+}
+
+Quaternion& Quaternion::operator-=(const Quaternion& rhs) {
+  real -= rhs.real;
+  imaginary -= rhs.imaginary;
+
+  normalize();
+  return *this;
+}
+
+Quaternion& Quaternion::operator*=(const Quaternion& rhs) {
+  real = real * rhs.real - imaginary * rhs.imaginary;
+  imaginary = real * rhs.imaginary + rhs.real * imaginary + imaginary.cross(rhs.imaginary);
+
+  normalize();
+  return *this;
+}
+
+Quaternion& Quaternion::operator*=(float rhs) {
+  real *= rhs;
+  imaginary *= rhs;
+
+  normalize();
+  return *this;
+}
+
+Quaternion& Quaternion::operator/=(float rhs) {
+  real /= rhs;
+  imaginary /= rhs;
+
+  normalize();
+  return *this;
+}
+
+std::partial_ordering Quaternion::operator<=>(const Quaternion& rhs) const {
+  if (real == rhs.real && imaginary == rhs.imaginary)
+    return std::partial_ordering::equivalent;
+
+  if (real < rhs.real && imaginary < rhs.imaginary)
+    return std::partial_ordering::less;
+
+  if (real > rhs.real && imaginary > rhs.imaginary)
+    return std::partial_ordering::greater;
+
+  return std::partial_ordering::unordered;
+}
+
+Quaternion Quaternion::operator+(const Quaternion& rhs) const {
+  return Quaternion(real + rhs.real, imaginary + rhs.imaginary);
+}
+
+Quaternion Quaternion::operator-(const Quaternion& rhs) const {
+  return Quaternion(real - rhs.real, imaginary - rhs.imaginary);
+}
+
+Quaternion Quaternion::operator-() const {
+  return Quaternion(-real, -imaginary);
+}
+
+Quaternion Quaternion::operator*(const Quaternion& rhs) const {
+  return Quaternion(
+    real * rhs.real - imaginary * rhs.imaginary,
+    real * rhs.imaginary + rhs.real * imaginary - imaginary.cross(rhs.imaginary)
+  );
+}
+
+Quaternion Quaternion::operator*(float rhs) const {
+  return Quaternion(rhs * real, rhs * imaginary);
+}
+
+Quaternion Quaternion::operator/(float rhs) const {
+  return Quaternion(real / rhs, imaginary / rhs);
+}
+
+Quaternion Quaternion::conjugate() const {
+  return Quaternion(real, -imaginary);
+}
+
+void Quaternion::normalize() {
+  float mag = std::sqrt(real * real + imaginary * imaginary);
+  real /= mag;
+  imaginary /= mag;
+}
+
 template <Layout layout>
 mat2<layout>::mat2(float s) {
   m_rows[0] = m_rows[1] = vec2(s);
@@ -660,21 +763,18 @@ mat3 mat3::identity() {
 }
 
 mat3 mat3::rotation(const vec3& rotator) {
-  mat3 x = mat3(
-    vec3(1.0f, 0.0f, 0.0f),
-    vec3(0.0f, std::cos(rotator.x), -std::sin(rotator.x)),
-    vec3(0.0f, std::sin(rotator.x), std::cos(rotator.x))
+  Quaternion qx = Quaternion(std::cos(rotator.x / 2), std::sin(rotator.x / 2), 0.0f, 0.0f);
+  Quaternion qy = Quaternion(std::cos(rotator.y / 2), 0.0f, std::sin(rotator.y / 2), 0.0f);
+  Quaternion qz = Quaternion(std::cos(rotator.z / 2), 0.0f, 0.0f, std::sin(rotator.z / 2));
+  Quaternion q = qy * qx * qz;
+
+  float &w = q.real, &x = q.imaginary.x, &y = q.imaginary.y, &z = q.imaginary.z;
+
+  return mat3(
+    vec3(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + y * w)),
+    vec3(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x)),
+    vec3(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y))
   );
-
-  mat3 y = mat3(
-    vec3(std::cos(rotator.y), 0.0f, std::sin(rotator.y)),
-    vec3(0.0f, 1.0f, 0.0f),
-    vec3(-std::sin(rotator.y), 0.0f, std::cos(rotator.y))
-  );
-
-  mat3 z = mat3(mat2<>::rotation(rotator.z));
-
-  return z * y * x;
 }
 
 mat3 mat3::scale(const vec3& scalar) {
@@ -763,13 +863,7 @@ mat4& mat4::operator-=(const mat4& rhs) {
 }
 
 mat4& mat4::operator*=(const mat4& rhs) {
-  mat4 t = rhs.transpose();
-
-  m_rows[0] = vec4(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1], m_rows[0] * t.m_rows[2], m_rows[0] * t.m_rows[3]);
-  m_rows[1] = vec4(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1], m_rows[1] * t.m_rows[2], m_rows[1] * t.m_rows[3]);
-  m_rows[2] = vec4(m_rows[2] * t.m_rows[0], m_rows[2] * t.m_rows[1], m_rows[2] * t.m_rows[2], m_rows[2] * t.m_rows[3]);
-  m_rows[3] = vec4(m_rows[3] * t.m_rows[0], m_rows[3] * t.m_rows[1], m_rows[3] * t.m_rows[2], m_rows[3] * t.m_rows[3]);
-
+  *this = *this * rhs;
   return *this;
 }
 
@@ -828,13 +922,17 @@ mat4 mat4::operator-() const {
 }
 
 mat4 mat4::operator*(const mat4& rhs) const {
-  mat4 t = rhs.transpose();
-  return mat4(
-    vec4(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1], m_rows[0] * t.m_rows[2], m_rows[0] * t.m_rows[3]),
-    vec4(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1], m_rows[1] * t.m_rows[2], m_rows[1] * t.m_rows[3]),
-    vec4(m_rows[2] * t.m_rows[0], m_rows[2] * t.m_rows[1], m_rows[2] * t.m_rows[2], m_rows[2] * t.m_rows[3]),
-    vec4(m_rows[3] * t.m_rows[0], m_rows[3] * t.m_rows[1], m_rows[3] * t.m_rows[2], m_rows[3] * t.m_rows[3])
-  );
+  mat4 res = mat4(0.0f);
+  for (unsigned int i = 0; i < 4; ++i) {
+    for (unsigned int j = 0; j < 4; ++j) {
+      res[i][j] = m_rows[i][0] * rhs.m_rows[0][j] +
+                  m_rows[i][1] * rhs.m_rows[1][j] +
+                  m_rows[i][2] * rhs.m_rows[2][j] +
+                  m_rows[i][3] * rhs.m_rows[3][j];
+    }
+  }
+
+  return res;
 }
 
 vec4 mat4::operator*(const vec4& rhs) const {
@@ -859,6 +957,7 @@ mat4 mat4::identity() {
 }
 
 mat4 mat4::rotation(const vec3& rotator) {
+  if (rotator == vec3(0.0f)) return mat4::identity();
   return mat4(mat3::rotation(rotator));
 }
 

@@ -8,6 +8,13 @@
 #include <map>
 #include <string>
 
+#define all_stages  vk::ShaderStageFlagBits::eVertex                  | \
+                    vk::ShaderStageFlagBits::eGeometry                | \
+                    vk::ShaderStageFlagBits::eTessellationControl     | \
+                    vk::ShaderStageFlagBits::eTessellationEvaluation  | \
+                    vk::ShaderStageFlagBits::eFragment                | \
+                    vk::ShaderStageFlagBits::eCompute
+
 namespace ge {
 
 class Engine;
@@ -21,9 +28,12 @@ enum ShaderStage {
   ComputeShader = static_cast<unsigned int>(vk::ShaderStageFlagBits::eCompute)
 };
 
-struct PushConstants {
-  mat4 camera = mat4::identity();
-  mat4 transforms[3] = { mat4::identity(), mat4::identity(), mat4::identity() };
+struct EngineData {
+  mat4 view = mat4::identity();
+  mat4 projection = mat4::identity();
+  unsigned int frameIndex;
+  unsigned int materialIndex;
+  unsigned int transformIndex;
 };
 
 class MaterialManager {
@@ -97,23 +107,36 @@ class MaterialManager {
 
     bool exists(std::string) const;
     const vk::raii::PipelineLayout& layout() const;
+    const vk::raii::DescriptorSet& descriptorSet(unsigned int) const;
 
     void add(const std::string&, const Builder&);
     void add(const std::string&, Builder&&);
-    void load(const Engine&);
+    void load(const Engine&, const std::vector<mat4>&);
+    void updateTransforms(const unsigned int&, const std::vector<mat4>&);
 
   private:
     ShaderStages getShaderStages(const Engine&, const Builder&) const;
 
-    void createLayout(const Engine&);
+    void createLayout(const Engine&, unsigned int);
     void createPipeline(const Engine&, const Builder&);
+    void createDescriptors(const Engine&, const std::vector<mat4>&);
+    void updateSets(const Engine&);
 
   private:
     std::map<std::string, Material> m_materials;
     std::vector<Builder> m_builders;
 
+    vk::raii::DescriptorSetLayout m_setLayout = nullptr;
     vk::raii::PipelineLayout m_layout = nullptr;
     std::vector<vk::raii::Pipeline> m_pipelines;
+
+    vk::raii::DescriptorPool m_setPool = nullptr;
+    vk::raii::DescriptorSets m_sets = nullptr;
+
+    vk::raii::DeviceMemory m_transformMemory = nullptr;
+    std::vector<vk::raii::Buffer> m_transformBuffers;
+    std::vector<unsigned int> m_transformOffsets;
+    void * m_transformMap = nullptr;
 };
 
 } // namespace ge

@@ -12,7 +12,8 @@ const ObjectManager::Output ObjectManager::operator[](std::string material) cons
     m_vertexBuffers[obj.bufferIndex],
     m_indexBuffers[obj.bufferIndex],
     m_indirectBuffers[obj.bufferIndex],
-    obj.commands.size()
+    obj.commands.size(),
+    obj.transformIndex
   };
 }
 
@@ -24,7 +25,7 @@ unsigned int ObjectManager::commandSize() const {
   return sizeof(IndirectCommand);
 }
 
-void ObjectManager::add(const std::string& material, const std::string& path) {
+Transform& ObjectManager::add(const std::string& material, const std::string& path, const Transform& transform) {
   auto [vertices, indices] = ObjParser::parse(path);
 
   ObjectData& obj = m_objects[material];
@@ -37,6 +38,29 @@ void ObjectManager::add(const std::string& material, const std::string& path) {
   });
   obj.vertices.insert(obj.vertices.end(), vertices.begin(), vertices.end());
   obj.indices.insert(obj.indices.end(), indices.begin(), indices.end());
+  obj.transforms.emplace_back(transform);
+
+  return obj.transforms.back();
+}
+
+std::vector<mat4> ObjectManager::transforms() {
+  std::vector<mat4> mats;
+
+  unsigned int transformIndex = 0;
+  for (auto& [material, obj] : m_objects) {
+    obj.transformIndex = transformIndex;
+
+    for (const auto& transform : obj.transforms) {
+      mats.emplace_back(
+        mat4::translation(transform.position()) *
+        mat4::rotation(transform.rotation()) *
+        mat4::scale(transform.scale())
+      );
+      ++transformIndex;
+    }
+  }
+
+  return mats;
 }
 
 void ObjectManager::load(const Engine& engine) {
