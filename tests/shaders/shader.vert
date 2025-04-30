@@ -2,7 +2,7 @@
 
 layout(push_constant) uniform push_constants {
   layout(row_major) mat4 camera;
-  layout(row_major) mat4 transforms[1];
+  layout(row_major) mat4 transforms[3];
 };
 
 layout(location = 0) in vec3 position;

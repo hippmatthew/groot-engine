@@ -23,7 +23,7 @@ enum ShaderStage {
 
 struct PushConstants {
   mat4 camera = mat4::identity();
-  mat4 transforms[1] = { mat4::identity() };
+  mat4 transforms[3] = { mat4::identity(), mat4::identity(), mat4::identity() };
 };
 
 class MaterialManager {

@@ -23,18 +23,22 @@ void Renderer::initialize(Engine& engine) {
 
   createSyncObjects(engine);
 
-  mat4 view = mat4::view({ 0.0, 0.0, -2.0 }, { 0.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 });
+  mat4 view = mat4::view({ 0.0f, 0.0f, -2.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f });
 
   float ar = static_cast<float>(engine.m_settings.extent.width) / static_cast<float>(engine.m_settings.extent.height);
-  mat4 perspective = mat4::perspective(60.0f * std::numbers::pi / 180.0f, ar, 0.01f, 1000.0f);
+  mat4 perspective = mat4::perspective(60.0f * std::numbers::pi / 180.0f, ar, 0.01f, 10000.0f);
 
   m_constants.camera = perspective * view;
-  m_constants.transforms[0] = {
-    { 1.0f, 0.0f, 0.0f, 0.0f },
-    { 0.0f, 1.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 1.0f, 0.0f },
-    { 0.0f, 0.0f, 0.0f, 1.0f }
-  };
+
+  m_constants.transforms[0] =
+    mat4::translation(vec3(-2.0f, 0.0f, 0.75f)) *
+    mat4::rotation(vec3(0.0f, std::numbers::pi / 8, 0.0f));
+
+  m_constants.transforms[1] = mat4::scale(vec3(0.8f, 0.8f, 1.0f));
+
+  m_constants.transforms[2] =
+    mat4::translation(vec3(2.0f, 0.0f, 0.75f)) *
+    mat4::rotation(vec3(0.0f, -std::numbers::pi / 8, 0.0f));
 }
 
 void Renderer::render(const Engine& engine) {

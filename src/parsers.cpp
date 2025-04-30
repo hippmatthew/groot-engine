@@ -29,17 +29,17 @@ ObjParser::Output ObjParser::parse(std::string path) {
     ss >> key;
 
     if (key == "v") {
-      vec3 position = vec3(0.0);
+      vec3 position = vec3(0.0f);
       ss >> position.x >> position.y >> position.z;
       positions.emplace_back(position);
     }
     else if (key == "vt") {
-      vec2 uv = vec2(0.0);
+      vec2 uv = vec2(0.0f);
       ss >> uv.x >> uv.y;
       uvs.emplace_back(uv);
     }
     else if (key == "vn") {
-      vec3 normal = vec3(0.0);
+      vec3 normal = vec3(0.0f);
       ss >> normal.x >> normal.y >> normal.z;
       normals.emplace_back(normal);
     }

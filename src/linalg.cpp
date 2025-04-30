@@ -501,8 +501,8 @@ mat2<layout> mat2<layout>::rotation(float angle) {
 template <Layout layout>
 mat2<layout> mat2<layout>::scale(const vec2& scalar) {
   return mat2(
-    vec2(scalar.x, 0.0),
-    vec2(0.0, scalar.y)
+    vec2(scalar.x, 0.0f),
+    vec2(0.0f, scalar.y)
   );
 }
 
@@ -920,10 +920,10 @@ mat4 mat4::transpose() const {
 }
 
 mat4 mat4::cofactor() const {
-  const float  &a = m_rows[0][0], &b = m_rows[0][1], &c = m_rows[0][2], &d = m_rows[0][3],
-                &e = m_rows[1][0], &f = m_rows[1][1], &g = m_rows[1][2], &h = m_rows[1][3],
-                &i = m_rows[2][0], &j = m_rows[2][1], &k = m_rows[2][2], &l = m_rows[2][3],
-                &m = m_rows[3][0], &n = m_rows[3][1], &o = m_rows[3][2], &p = m_rows[3][3];
+  const float &a = m_rows[0][0], &b = m_rows[0][1], &c = m_rows[0][2], &d = m_rows[0][3],
+              &e = m_rows[1][0], &f = m_rows[1][1], &g = m_rows[1][2], &h = m_rows[1][3],
+              &i = m_rows[2][0], &j = m_rows[2][1], &k = m_rows[2][2], &l = m_rows[2][3],
+              &m = m_rows[3][0], &n = m_rows[3][1], &o = m_rows[3][2], &p = m_rows[3][3];
 
   mat3 m00 = mat3(
     vec3(f, g, h),

@@ -39,6 +39,8 @@ TEST_CASE( "engine", "[unit][engine]" ) {
     );
 
     engine.add_object("test", "../tests/dat/quad.obj");
+    engine.add_object("test", "../tests/dat/quad.obj");
+    engine.add_object("test", "../tests/dat/quad.obj");
 
     bool success = true;
     try {

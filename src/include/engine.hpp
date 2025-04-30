@@ -36,7 +36,7 @@ struct Settings {
   vk::ColorSpaceKHR color_space = vk::ColorSpaceKHR::eSrgbNonlinear;
   vk::PresentModeKHR present_mode = vk::PresentModeKHR::eMailbox;
   vk::Extent2D extent = vk::Extent2D{ 1280, 720 };
-  std::array<float, 4> background_color = { 0.0, 0.0, 0.0, 1.0 };
+  std::array<float, 4> background_color = { 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
 class Engine {
