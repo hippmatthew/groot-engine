@@ -25,6 +25,10 @@ unsigned int ObjectManager::commandSize() const {
   return sizeof(IndirectCommand);
 }
 
+const std::vector<mat4>& ObjectManager::transforms() const {
+  return m_transforms;
+}
+
 Transform& ObjectManager::add(const std::string& material, const std::string& path, const Transform& transform) {
   auto [vertices, indices] = ObjParser::parse(path);
 
@@ -38,29 +42,39 @@ Transform& ObjectManager::add(const std::string& material, const std::string& pa
   });
   obj.vertices.insert(obj.vertices.end(), vertices.begin(), vertices.end());
   obj.indices.insert(obj.indices.end(), indices.begin(), indices.end());
-  obj.transforms.emplace_back(transform);
+  obj.transforms.emplace_back(std::make_unique<Transform>(transform));
 
-  return obj.transforms.back();
+  obj.transforms.back()->m_manager = this;
+  return *obj.transforms.back();
 }
 
-std::vector<mat4> ObjectManager::transforms() {
-  std::vector<mat4> mats;
-
+void ObjectManager::loadTransforms() {
   unsigned int transformIndex = 0;
   for (auto& [material, obj] : m_objects) {
     obj.transformIndex = transformIndex;
 
-    for (const auto& transform : obj.transforms) {
-      mats.emplace_back(
-        mat4::translation(transform.position()) *
-        mat4::rotation(transform.rotation()) *
-        mat4::scale(transform.scale())
+    for (const auto& t : obj.transforms) {
+      m_transforms.emplace_back(
+        mat4::translation(t->m_position) *
+        mat4::rotation(t->m_rotation) *
+        mat4::scale(t->m_scale)
       );
-      ++transformIndex;
+      t->m_index = transformIndex++;
     }
   }
+}
 
-  return mats;
+void ObjectManager::batch(unsigned int index, const std::tuple<vec3, vec3, vec3>& vals) {
+  m_updates.insert_or_assign(index, vals);
+}
+
+void ObjectManager::updateTransforms() {
+  for (auto& [index, vals] : m_updates) {
+    auto [position, rotation, scale] = vals;
+    m_transforms[index] = mat4::translation(position) *
+                          mat4::rotation(rotation) *
+                          mat4::scale(scale);
+  }
 }
 
 void ObjectManager::load(const Engine& engine) {

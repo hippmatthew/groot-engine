@@ -1,3 +1,4 @@
+#include "src/include/objects.hpp"
 #include "src/include/transform.hpp"
 
 namespace ge {
@@ -18,16 +19,19 @@ const vec3& Transform::scale() const {
 
 Transform& Transform::translate(const vec3& p) {
   m_position = p;
+  m_manager->batch(m_index, { m_position, m_rotation, m_scale });
   return *this;
 }
 
 Transform& Transform::rotate(const vec3& r) {
   m_rotation = r;
+  m_manager->batch(m_index, { m_position, m_rotation, m_scale });
   return *this;
 }
 
 Transform& Transform::resize(const vec3& s) {
   m_scale = s;
+  m_manager->batch(m_index, { m_position, m_rotation, m_scale });
   return *this;
 }
 

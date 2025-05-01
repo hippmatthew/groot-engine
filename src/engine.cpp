@@ -117,10 +117,10 @@ void Engine::createCommandPools() {
 }
 
 void Engine::load() {
-  std::vector<mat4> transforms = m_objects.transforms();
+  m_objects.loadTransforms();
 
   std::future materialThread = std::async(std::launch::async,
-    [this, &transforms](){ this->m_materials.load(*this, transforms); }
+    [this](){ this->m_materials.load(*this, this->m_objects.transforms()); }
   );
 
   std::future objectThread = std::async(std::launch::async,

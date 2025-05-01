@@ -7,11 +7,10 @@
 #include <vulkan/vulkan_beta.h>
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace ge {
-
-using transform = Transform&;
 
 class Engine;
 
@@ -38,7 +37,7 @@ class ObjectManager {
       std::vector<unsigned int> indices;
       unsigned int bufferIndex = 0;
       std::vector<IndirectCommand> commands;
-      std::vector<Transform> transforms;
+      std::vector<std::unique_ptr<Transform>> transforms;
       unsigned int transformIndex = 0;
     };
 
@@ -56,13 +55,18 @@ class ObjectManager {
 
     bool hasObjects(std::string) const;
     unsigned int commandSize() const;
+    const std::vector<mat4>& transforms() const;
 
     Transform& add(const std::string&, const std::string&, const Transform&);
-    std::vector<mat4> transforms();
+    void loadTransforms();
     void load(const Engine&);
+    void batch(unsigned int, const std::tuple<vec3, vec3, vec3>&);
+    void updateTransforms();
 
   private:
     std::map<std::string, ObjectData> m_objects;
+    std::map<unsigned int, std::tuple<vec3, vec3, vec3>> m_updates;
+    std::vector<mat4> m_transforms;
 
     vk::raii::DeviceMemory m_vertexMemory = nullptr;
     std::vector<vk::raii::Buffer> m_vertexBuffers;

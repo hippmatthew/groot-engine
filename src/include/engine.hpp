@@ -69,8 +69,11 @@ class Engine {
 
       while (!shouldClose()) {
         pollEvents();
+
         code();
         m_renderer.render(*this);
+
+        m_objects.updateTransforms();
         m_materials.updateTransforms(m_renderer.frameIndex(), m_objects.transforms());
       }
 

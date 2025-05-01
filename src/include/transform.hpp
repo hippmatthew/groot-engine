@@ -4,7 +4,11 @@
 
 namespace ge {
 
+class ObjectManager;
+
 class Transform {
+  friend class ObjectManager;
+
   public:
     Transform() = default;
     Transform(const Transform&) = default;
@@ -28,6 +32,9 @@ class Transform {
     vec3 m_position = vec3(0.0f);
     vec3 m_rotation = vec3(0.0f);
     vec3 m_scale = vec3(1.0f);
+
+    ObjectManager * m_manager = nullptr;
+    unsigned int m_index = 0;
 };
 
 } // namespace ge
