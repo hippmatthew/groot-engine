@@ -35,51 +35,51 @@ inline float error(float res, float exp) {
 }
 
 inline float error(const ge::vec2& res, const ge::vec2& exp) {
-  ge::vec2 err = ge::vec2(res.x - exp.x, res.y - exp.y);
-  return err.magnitude();
+  return (res - exp).magnitude();
 }
 
 inline float error(const ge::vec3& res, const ge::vec3& exp) {
-  ge::vec3 err = ge::vec3(res.x - exp.x, res.y - exp.y, res.z - exp.z);
-  return err.magnitude();
+  return (res - exp).magnitude();
 }
 
 inline float error(const ge::vec4& res, const ge::vec4& exp) {
-  ge::vec4 err = ge::vec4(res.x - exp.x, res.y - exp.y, res.z - exp.z, res.w - exp.w);
-  return err.magnitude();
+  return (res - exp).magnitude();
 }
 
 template <ge::Layout layout>
 inline float error(const ge::mat2<layout>& res, const ge::mat2<layout>& exp) {
+  ge::mat2<layout> delta = res - exp;
+
   float sum = 0.0f;
   for (unsigned int i = 0; i < 2; ++i) {
-    for (unsigned int j = 0; j < 2; ++j) {
-      float val = res[i][j] - exp[i][j];
-      sum += val * val;
-    }
+    for (unsigned int j = 0; j < 2; ++j)
+      sum += delta[i][j] * delta[i][j];
   }
+
   return std::sqrt(sum);
 }
 
 inline float error(const ge::mat3& res, const ge::mat3& exp) {
+  ge::mat3 delta = res - exp;
+
   float sum = 0.0f;
   for (unsigned int i = 0; i < 3; ++i) {
-    for (unsigned int j = 0; j < 3; ++j) {
-      float val = res[i][j] - exp[i][j];
-      sum += val * val;
-    }
+    for (unsigned int j = 0; j < 3; ++j)
+      sum += delta[i][j] * delta[i][j];
   }
+
   return std::sqrt(sum);
 }
 
 inline float error(const ge::mat4& res, const ge::mat4& exp) {
-  ge::mat4 c = res - exp;
+  ge::mat4 delta = res - exp;
 
   float sum = 0.0f;
   for (unsigned int i = 0; i < 4; ++i) {
     for (unsigned int j = 0; j < 4; ++j)
-      sum += c[i][j] * c[i][j];
+      sum += delta[i][j] * delta[i][j];
   }
+
   return std::sqrt(sum);
 }
 
@@ -99,15 +99,15 @@ inline float tolerance(const ge::vec4& ref) {
   return g_absTolerance + g_relTolerance * ref.magnitude();
 }
 
-inline float tolerance(const ge::mat2<>& ref) {
+template <ge::Layout layout>
+inline float tolerance(const ge::mat2<layout>& ref) {
   float sum = 0.0f;
   for (unsigned int i = 0; i < 2; ++i) {
     for (unsigned int j = 0; j < 2; ++j)
       sum += ref[i][j] * ref[i][j];
   }
-  sum = std::sqrt(sum);
 
-  return g_absTolerance + g_relTolerance * sum;
+  return g_absTolerance + g_relTolerance * std::sqrt(sum);
 }
 
 inline float tolerance(const ge::mat3& ref) {
@@ -116,9 +116,8 @@ float sum = 0.0f;
     for (unsigned int j = 0; j < 3; ++j)
       sum += ref[i][j] * ref[i][j];
   }
-  sum = std::sqrt(sum);
 
-  return g_absTolerance + g_relTolerance * sum;
+  return g_absTolerance + g_relTolerance * std::sqrt(sum);
 }
 
 inline float tolerance(const ge::mat4& ref) {
@@ -127,9 +126,8 @@ inline float tolerance(const ge::mat4& ref) {
     for (unsigned int j = 0; j < 4; ++j)
       sum += ref[i][j] * ref[i][j];
   }
-  sum = std::sqrt(sum);
 
-  return g_absTolerance + g_relTolerance * sum;
+  return g_absTolerance + g_relTolerance * std::sqrt(sum);
 }
 
 } // namespace tests

@@ -179,7 +179,7 @@ class alignas(layout == std430 ? 8 : 16) mat2 {
     mat2(const mat2&) = default;
     mat2(mat2&&) = default;
     explicit mat2(float);
-    mat2(vec2, vec2);
+    mat2(const vec2&, const vec2&);
     explicit mat2(const mat3&);
     explicit mat2(const mat4&);
 
@@ -225,7 +225,8 @@ class alignas(16) mat3 {
     mat3(const mat3&) = default;
     mat3(mat3&&) = default;
     explicit mat3(float);
-    mat3(vec3, vec3, vec3);
+    mat3(const vec3&, const vec3&, const vec3&);
+    explicit mat3(const Quaternion&);
 
     template <Layout layout>
     explicit mat3(const mat2<layout>&);
@@ -276,7 +277,7 @@ class alignas(16) mat4 {
     mat4(const mat4&) = default;
     mat4(mat4&&) = default;
     explicit mat4(float);
-    mat4(vec4, vec4, vec4, vec4);
+    mat4(const vec4&, const vec4&, const vec4&, const vec4&);
 
     template <Layout layout>
     explicit mat4(const mat2<layout>&);
@@ -329,6 +330,8 @@ class alignas(16) mat4 {
 ge::vec2 operator*(float, const ge::vec2&);
 ge::vec3 operator*(float, const ge::vec3&);
 ge::vec4 operator*(float, const ge::vec4&);
+
+ge::Quaternion operator*(float, const ge::Quaternion&);
 
 template <ge::Layout layout>
 ge::mat2<layout> operator*(float, const ge::mat2<layout>&);

@@ -361,42 +361,27 @@ Quaternion::Quaternion(const vec3& v) : imaginary(v) {
 }
 
 Quaternion& Quaternion::operator+=(const Quaternion& rhs) {
-  real += rhs.real;
-  imaginary += rhs.imaginary;
-
-  normalize();
+  *this = *this + rhs;
   return *this;
 }
 
 Quaternion& Quaternion::operator-=(const Quaternion& rhs) {
-  real -= rhs.real;
-  imaginary -= rhs.imaginary;
-
-  normalize();
+  *this = *this - rhs;
   return *this;
 }
 
 Quaternion& Quaternion::operator*=(const Quaternion& rhs) {
-  real = real * rhs.real - imaginary * rhs.imaginary;
-  imaginary = real * rhs.imaginary + rhs.real * imaginary + imaginary.cross(rhs.imaginary);
-
-  normalize();
+  *this = *this * rhs;
   return *this;
 }
 
 Quaternion& Quaternion::operator*=(float rhs) {
-  real *= rhs;
-  imaginary *= rhs;
-
-  normalize();
+  *this = *this * rhs;
   return *this;
 }
 
 Quaternion& Quaternion::operator/=(float rhs) {
-  real /= rhs;
-  imaginary /= rhs;
-
-  normalize();
+  *this = *this / rhs;
   return *this;
 }
 
@@ -456,7 +441,7 @@ mat2<layout>::mat2(float s) {
 }
 
 template <Layout layout>
-mat2<layout>::mat2(vec2 row1, vec2 row2) {
+mat2<layout>::mat2(const vec2& row1, const vec2& row2) {
   m_rows[0] = row1;
   m_rows[1] = row2;
 }
@@ -491,11 +476,7 @@ mat2<layout>& mat2<layout>::operator-=(const mat2& rhs) {
 
 template <Layout layout>
 mat2<layout>& mat2<layout>::operator*=(const mat2& rhs) {
-  mat2 t = rhs.transpose();
-
-  m_rows[0] = vec2(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1]);
-  m_rows[1] = vec2(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1]);
-
+  *this = *this * rhs;
   return *this;
 }
 
@@ -563,11 +544,16 @@ mat2<layout> mat2<layout>::operator-() const {
 
 template <Layout layout>
 mat2<layout> mat2<layout>::operator*(const mat2& rhs) const {
-  mat2 t = rhs.transpose();
-  return mat2(
-    vec2(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1]),
-    vec2(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1])
-  );
+  mat2 res(0.0f);
+
+  for (unsigned int i = 0; i < 2; ++i) {
+    for (unsigned int j = 0; j < 2; ++j) {
+      res[i][j] = m_rows[i][0] * rhs.m_rows[0][j] +
+                  m_rows[i][1] * rhs.m_rows[1][j];
+    }
+  }
+
+  return res;
 }
 
 template <Layout layout>
@@ -595,6 +581,7 @@ mat2<layout> mat2<layout>::identity() {
 
 template <Layout layout>
 mat2<layout> mat2<layout>::rotation(float angle) {
+  if  (angle == 0) return identity();
   return mat2(
     vec2(std::cos(angle), -std::sin(angle)),
     vec2(std::sin(angle), std::cos(angle))
@@ -636,10 +623,18 @@ mat3::mat3(float s) {
   m_rows[0] = m_rows[1] = m_rows[2] = vec3(s);
 }
 
-mat3::mat3(vec3 row1, vec3 row2, vec3 row3) {
+mat3::mat3(const vec3& row1, const vec3& row2, const vec3& row3) {
   m_rows[0] = row1;
   m_rows[1] = row2;
   m_rows[2] = row3;
+}
+
+mat3::mat3(const Quaternion& q) {
+  const float &w = q.real, &x = q.imaginary.x, &y = q.imaginary.y, &z = q.imaginary.z;
+
+  m_rows[0] = vec3(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + y * w));
+  m_rows[1] = vec3(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x));
+  m_rows[2] = vec3(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
 }
 
 template <Layout layout>
@@ -670,12 +665,7 @@ mat3& mat3::operator-=(const mat3& rhs) {
 }
 
 mat3& mat3::operator*=(const mat3& rhs) {
-  mat3 t = rhs.transpose();
-
-  m_rows[0] = vec3(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1], m_rows[0] * t.m_rows[2]);
-  m_rows[1] = vec3(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1], m_rows[1] * t.m_rows[2]);
-  m_rows[2] = vec3(m_rows[2] * t.m_rows[0], m_rows[2] * t.m_rows[1], m_rows[2] * t.m_rows[2]);
-
+  *this = *this * rhs;
   return *this;
 }
 
@@ -734,12 +724,17 @@ mat3 mat3::operator-() const {
 }
 
 mat3 mat3::operator*(const mat3& rhs) const {
-  mat3 t = rhs.transpose();
-  return mat3(
-    vec3(m_rows[0] * t.m_rows[0], m_rows[0] * t.m_rows[1], m_rows[0] * t.m_rows[2]),
-    vec3(m_rows[1] * t.m_rows[0], m_rows[1] * t.m_rows[1], m_rows[1] * t.m_rows[2]),
-    vec3(m_rows[2] * t.m_rows[0], m_rows[2] * t.m_rows[1], m_rows[2] * t.m_rows[2])
-  );
+  mat3 res(0.0f);
+
+  for (unsigned int i = 0; i < 3; ++i) {
+    for (unsigned int j = 0; j < 3; ++j) {
+      res[i][j] = m_rows[i][0] * rhs.m_rows[0][j] +
+                  m_rows[i][1] * rhs.m_rows[1][j] +
+                  m_rows[i][2] * rhs.m_rows[2][j];
+    }
+  }
+
+  return res;
 }
 
 vec3 mat3::operator*(const vec3& rhs) const {
@@ -766,15 +761,8 @@ mat3 mat3::rotation(const vec3& rotator) {
   Quaternion qx = Quaternion(std::cos(rotator.x / 2), std::sin(rotator.x / 2), 0.0f, 0.0f);
   Quaternion qy = Quaternion(std::cos(rotator.y / 2), 0.0f, std::sin(rotator.y / 2), 0.0f);
   Quaternion qz = Quaternion(std::cos(rotator.z / 2), 0.0f, 0.0f, std::sin(rotator.z / 2));
-  Quaternion q = qy * qx * qz;
 
-  float &w = q.real, &x = q.imaginary.x, &y = q.imaginary.y, &z = q.imaginary.z;
-
-  return mat3(
-    vec3(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + y * w)),
-    vec3(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x)),
-    vec3(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y))
-  );
+  return ge::mat3(qy * qx * qz);
 }
 
 mat3 mat3::scale(const vec3& scalar) {
@@ -786,9 +774,9 @@ mat3 mat3::scale(const vec3& scalar) {
 }
 
 float mat3::determinant() const {
-  const float  &a = m_rows[0][0], &b = m_rows[0][1], &c = m_rows[0][2],
-                &d = m_rows[1][0], &e = m_rows[1][1], &f = m_rows[1][2],
-                &g = m_rows[2][0], &h = m_rows[2][1], &i = m_rows[2][2];
+  const float &a = m_rows[0][0], &b = m_rows[0][1], &c = m_rows[0][2],
+              &d = m_rows[1][0], &e = m_rows[1][1], &f = m_rows[1][2],
+              &g = m_rows[2][0], &h = m_rows[2][1], &i = m_rows[2][2];
 
   return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 }
@@ -826,7 +814,7 @@ mat4::mat4(float s) {
   m_rows[0] = m_rows[1] = m_rows[2] = m_rows[3] = vec4(s);
 }
 
-mat4::mat4(vec4 row1, vec4 row2, vec4 row3, vec4 row4) {
+mat4::mat4(const vec4& row1, const vec4& row2, const vec4& row3, const vec4& row4) {
   m_rows[0] = row1;
   m_rows[1] = row2;
   m_rows[2] = row3;
@@ -1151,6 +1139,9 @@ ge::vec4 operator*(float lhs, const ge::vec4& rhs) {
   return rhs * lhs;
 }
 
+ge::Quaternion operator*(float lhs, const ge::Quaternion& rhs) {
+  return rhs * lhs;
+}
 
 template <ge::Layout layout>
 ge::mat2<layout> operator*(float lhs, const ge::mat2<layout>& rhs) {

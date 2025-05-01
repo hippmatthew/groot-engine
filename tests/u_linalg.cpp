@@ -211,6 +211,112 @@ TEST_CASE( "vec", "[unit][linalg]" ) {
   }
 }
 
+TEST_CASE( "quaterion", "[unit][linalg]" ) {
+  tests::Random random;
+
+  float num1 = random();
+  float num2 = random();
+  float num3 = random();
+  float num4 = random();
+
+  SECTION( "add" ) {
+    ge::Quaternion res = ge::Quaternion(num1, num2, num3, num4) + ge::Quaternion(num4, num3, num2, num1);
+    ge::Quaternion exp(num1 + num4, num2 + num3, num3 + num2, num4 + num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "add_assignment" ) {
+    ge::Quaternion res(num1, num2, num3, num4);
+    ge::Quaternion exp(num1 + num4, num2 + num3, num3 + num2, num4 + num1);
+    res += ge::Quaternion(num4, num3, num2, num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "subtract" ) {
+    ge::Quaternion res = ge::Quaternion(num1, num2, num3, num4) - ge::Quaternion(num4, num3, num2, num1);
+    ge::Quaternion exp(num1 - num4, num2 - num3, num3 - num2, num4 - num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "subtract_assignment" ) {
+    ge::Quaternion res(num1, num2, num3, num4);
+    ge::Quaternion exp(num1 - num4, num2 - num3, num3 - num2, num4 - num1);
+    res -= ge::Quaternion(num4, num3, num2, num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "quaternion_multiplication" ) {
+    ge::vec3 v1(num2, num3, num4);
+    ge::vec3 v2(num3, num2, num1);
+
+    ge::Quaternion res = ge::Quaternion(num1, v1) * ge::Quaternion(num4, v2);
+    ge::Quaternion exp(num1 * num4 - v1 * v2, num1 * v2 + num4 * v1 - v1.cross(v2));
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "quaternion_multiplication_assignment" ) {
+    ge::vec3 v1 = ge::vec3(num2, num3, num4);
+    ge::vec3 v2 = ge::vec3(num3, num2, num1);
+
+    ge::Quaternion res(num1, v1);
+    ge::Quaternion exp(num1 * num4 - v1 * v2, num1 * v2 + num4 * v1 - v1.cross(v2));
+    res *= ge::Quaternion(num4, v2);
+
+    ge::mat3 mExp = ge::mat3(exp);
+
+    CHECK( tests::error(ge::mat3(res), mExp) <= tests::tolerance(mExp) );
+  }
+
+  SECTION ( "scalar_multiplication" ) {
+    ge::Quaternion res = ge::Quaternion(num1, num2, num3, num4) * num1;
+    ge::Quaternion exp(num1 * num1, num2 * num1, num3 * num1, num4 * num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "scalar_multiplication_assignment" ) {
+    ge::Quaternion res(num1, num2, num3, num4);
+    ge::Quaternion exp(num1 * num1, num2 * num1, num3 * num1, num4 * num1);
+    res *= num1;
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "scalar_divison" ) {
+    ge::Quaternion res = ge::Quaternion(num1, num2, num3, num4) / num1;
+    ge::Quaternion exp(num1 / num1, num2 / num1, num3 / num1, num4 / num1);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "scalar_divison_assignment" ) {
+    ge::Quaternion res(num1, num2, num3, num4);
+    ge::Quaternion exp(num1 / num1, num2 / num1, num3 / num1, num4 / num1);
+    res /= num1;
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "negation" ) {
+    ge::Quaternion res = -ge::Quaternion(num1, num2, num3, num4);
+    ge::Quaternion exp(-num1, -num2, -num3, -num4);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+
+  SECTION( "conjugate" ) {
+    ge::Quaternion res = ge::Quaternion(num1, num2, num3, num4).conjugate();
+    ge::Quaternion exp(num1, -num2, -num3, -num4);
+
+    CHECK( tests::error(ge::mat3(res), ge::mat3(exp)) <= tests::tolerance(ge::mat3(exp)) );
+  }
+}
+
 TEST_CASE( "mat", "[unit][linalg]" ) {
   tests::Random random;
 
