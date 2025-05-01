@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <compare>
+#include <numbers>
 #include <stdexcept>
 
 namespace ge {
@@ -1123,6 +1124,10 @@ mat4 mat4::adjugate() const {
 std::optional<mat4> mat4::inverse() const {
   float det = determinant();
   return !det ? std::nullopt : std::optional(adjugate() / det);
+}
+
+float radians(float deg) {
+  return deg * std::numbers::pi / 180.0f;
 }
 
 } // namespace ge

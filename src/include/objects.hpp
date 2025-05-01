@@ -12,6 +12,8 @@
 
 namespace ge {
 
+using transform = std::shared_ptr<Transform>;
+
 class Engine;
 
 class ObjectManager {
@@ -37,7 +39,7 @@ class ObjectManager {
       std::vector<unsigned int> indices;
       unsigned int bufferIndex = 0;
       std::vector<IndirectCommand> commands;
-      std::vector<std::unique_ptr<Transform>> transforms;
+      std::vector<std::shared_ptr<Transform>> transforms;
       unsigned int transformIndex = 0;
     };
 
@@ -57,11 +59,12 @@ class ObjectManager {
     unsigned int commandSize() const;
     const std::vector<mat4>& transforms() const;
 
-    Transform& add(const std::string&, const std::string&, const Transform&);
+    transform add(const std::string&, const std::string&, const Transform&);
     void loadTransforms();
     void load(const Engine&);
     void batch(unsigned int, const std::tuple<vec3, vec3, vec3>&);
     void updateTransforms();
+    void updateTimes(double);
 
   private:
     std::map<std::string, ObjectData> m_objects;

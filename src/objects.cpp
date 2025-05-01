@@ -29,7 +29,7 @@ const std::vector<mat4>& ObjectManager::transforms() const {
   return m_transforms;
 }
 
-Transform& ObjectManager::add(const std::string& material, const std::string& path, const Transform& transform) {
+transform ObjectManager::add(const std::string& material, const std::string& path, const Transform& transform) {
   auto [vertices, indices] = ObjParser::parse(path);
 
   ObjectData& obj = m_objects[material];
@@ -42,10 +42,10 @@ Transform& ObjectManager::add(const std::string& material, const std::string& pa
   });
   obj.vertices.insert(obj.vertices.end(), vertices.begin(), vertices.end());
   obj.indices.insert(obj.indices.end(), indices.begin(), indices.end());
-  obj.transforms.emplace_back(std::make_unique<Transform>(transform));
+  obj.transforms.emplace_back(std::make_shared<Transform>(transform));
 
   obj.transforms.back()->m_manager = this;
-  return *obj.transforms.back();
+  return obj.transforms.back();
 }
 
 void ObjectManager::loadTransforms() {
@@ -74,6 +74,13 @@ void ObjectManager::updateTransforms() {
     m_transforms[index] = mat4::translation(position) *
                           mat4::rotation(rotation) *
                           mat4::scale(scale);
+  }
+}
+
+void ObjectManager::updateTimes(double time) {
+  for (auto& [material, obj] : m_objects) {
+    for (auto& transform : obj.transforms)
+      transform->m_time += time;
   }
 }
 

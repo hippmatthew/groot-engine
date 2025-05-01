@@ -325,6 +325,8 @@ class alignas(16) mat4 {
     vec4 m_rows[4] = { vec4(0.0f), vec4(0.0f), vec4(0.0f), vec4(0.0f) };
 };
 
+float radians(float);
+
 } // namespace ge
 
 ge::vec2 operator*(float, const ge::vec2&);

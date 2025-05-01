@@ -1,5 +1,6 @@
 #include "src/include/engine.hpp"
 
+#include <chrono>
 #include <future>
 
 namespace ge {
@@ -33,7 +34,7 @@ void Engine::add_material(std::string tag, MaterialManager::Builder&& builder) {
   m_materials.add(tag, std::move(builder));
 }
 
-Transform& Engine::add_object(std::string material, std::string path, const Transform& transform) {
+transform Engine::add_object(std::string material, std::string path, const Transform& transform) {
   if (!m_materials.exists(material))
     throw std::runtime_error("groot-engine: material '" + material + "' does not exist");
   return m_objects.add(material, path, transform);
@@ -129,6 +130,23 @@ void Engine::load() {
 
   materialThread.get();
   objectThread.get();
+}
+
+void Engine::updateTimes() {
+  static std::chrono::time_point start = std::chrono::high_resolution_clock::now();
+
+  std::chrono::time_point now = std::chrono::high_resolution_clock::now();
+  double time = std::chrono::duration(now - start).count();
+
+  m_frameTime = std::min(time - m_currTime, 0.25);
+  m_currTime = time;
+  m_accumulator += m_frameTime;
+}
+
+void Engine::batchUpdates() {
+  m_objects.updateTransforms();
+  m_materials.updateTransforms(m_renderer.frameIndex(), m_objects.transforms());
+  m_objects.updateTimes(m_frameTime);
 }
 
 } // namespace ge

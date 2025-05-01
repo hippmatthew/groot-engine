@@ -7,6 +7,7 @@ namespace ge {
 class ObjectManager;
 
 class Transform {
+  friend class Engine;
   friend class ObjectManager;
 
   public:
@@ -23,15 +24,20 @@ class Transform {
     const vec3& position() const;
     const vec3& rotation() const;
     const vec3& scale() const;
+    const double& elapsed_time() const;
 
-    Transform& translate(const vec3&);
-    Transform& rotate(const vec3&);
-    Transform& resize(const vec3&);
+    void translate(const vec3&);
+    void rotate(const vec3&);
+    void set_position(const vec3&);
+    void set_rotation(const vec3&);
+    void set_scale(float);
+    void set_scale(const vec3&);
 
   private:
     vec3 m_position = vec3(0.0f);
     vec3 m_rotation = vec3(0.0f);
     vec3 m_scale = vec3(1.0f);
+    double m_time = 0.0;
 
     ObjectManager * m_manager = nullptr;
     unsigned int m_index = 0;

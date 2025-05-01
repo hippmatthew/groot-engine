@@ -7,6 +7,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <chrono>
 #include <string>
 
 #define ge_make_version(major, minor, patch) (unsigned int)( \
@@ -37,6 +38,7 @@ struct Settings {
   vk::PresentModeKHR present_mode = vk::PresentModeKHR::eMailbox;
   vk::Extent2D extent = vk::Extent2D{ 1280, 720 };
   std::array<float, 4> background_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+  double time_step = 1 / 60.0f;
 };
 
 class Engine {
@@ -60,21 +62,52 @@ class Engine {
 
     void add_material(std::string, const MaterialManager::Builder&);
     void add_material(std::string, MaterialManager::Builder&&);
-    Transform& add_object(std::string, std::string, const Transform& t = Transform());
+    transform add_object(std::string, std::string, const Transform& t = Transform());
     void run();
 
     template <typename Func>
-    void run(Func&& code) {
+    requires std::invocable<Func>
+    inline void run(Func&& code) {
       load();
 
+      std::chrono::time_point start = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point now = start;
+
       while (!shouldClose()) {
+        updateTimes();
         pollEvents();
 
-        code();
-        m_renderer.render(*this);
+        while (m_accumulator >= m_settings.time_step) {
+          code();
+          m_accumulator -= m_settings.time_step;
+        }
 
-        m_objects.updateTransforms();
-        m_materials.updateTransforms(m_renderer.frameIndex(), m_objects.transforms());
+        m_renderer.render(*this);
+        batchUpdates();
+      }
+
+      m_context.device().waitIdle();
+    }
+
+    template <typename Func>
+    requires std::invocable<Func, double>
+    inline void run(Func&& code) {
+      load();
+
+      std::chrono::time_point start = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point now = start;
+
+      while (!shouldClose()) {
+        updateTimes();
+        pollEvents();
+
+        while (m_accumulator >= m_settings.time_step) {
+          code(m_settings.time_step);
+          m_accumulator -= m_settings.time_step;
+        }
+
+        m_renderer.render(*this);
+        batchUpdates();
       }
 
       m_context.device().waitIdle();
@@ -90,9 +123,14 @@ class Engine {
     void createSurface();
     void createCommandPools();
     void load();
+    void updateTimes();
+    void batchUpdates();
 
   private:
     Settings m_settings;
+    double m_frameTime = 0.0;
+    double m_currTime = 0.0;
+    double m_accumulator = 0.0;
 
     VulkanContext m_context;
     MaterialManager m_materials;
